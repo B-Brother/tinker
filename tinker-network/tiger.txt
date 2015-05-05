@@ -1,0 +1,18 @@
+1. 怎么感知到netty的返回
+   A: countdownlatch(1)。
+   
+2. 如何区分多次RPC请求?
+   A: 自己写了一个伪UUID生成器。方案是保存了一个自增的atomicLong。
+   
+3. 怎么去代理所有的对象？
+   A: 这里是我对代理理解的不透彻。
+   
+4. 如何保存已经连接的NETTY的channel? 默认是会阻塞在b.connect().sync()这里。
+   A: 这是因为连接时候写的host不对
+   
+5. (1). io.netty.handler.codec.TooLongFrameException: Adjusted frame length exceeds 1048576: 1110266957 - discarded  
+   (2). Netty的server端收不到消息
+     和这两句有关系。
+   new ObjectEncoder(),
+   new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
+     多一层转码之后造成了数据发送错误以及包判断后过大的问题

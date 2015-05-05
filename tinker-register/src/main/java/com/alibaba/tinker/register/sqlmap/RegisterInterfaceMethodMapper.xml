@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>   
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">   
+<mapper namespace="com.alibaba.tinker.register.mapper.RegisterInterfaceMethodMapper">    
+    <insert id="insertRegisterInterfaceMethod" parameterType="com.alibaba.tinker.register.object.RegisterInterfaceMethodDo">  
+   	   <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Long">
+			SELECT LAST_INSERT_ID() as id
+	   </selectKey> 
+       insert into register_interface_method values
+       		(
+       			#{id}, 
+       			now(),
+       			now(),
+       			'SYSTEM',
+       			'SYSTEM',
+       			'y',
+       			#{interfaceId},
+       			#{methodName}, 
+       			#{paramType},
+       			#{responseType} 
+       		)	 
+    </insert>     
+    
+    <select id="getInterfaceListByInterface" resultType="com.alibaba.tinker.register.object.RegisterInterfaceMethodDo" parameterType="java.lang.Long">   
+        select 
+        	id as id,
+        	gmt_create as gmtCreate,
+        	gmt_modified as gmtModified,
+        	creator,
+        	modifier,
+        	is_deleted as isDeleted, 
+        	interface_id as interfaceId,
+        	method_name as methodName,
+        	param_type as paramType,
+        	response_type as responseType
+        from register_interface_method 
+        where 
+        	interface_id = #{interfaceId}	 
+    </select> 
+</mapper>  
