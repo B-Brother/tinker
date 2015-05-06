@@ -1,29 +1,18 @@
 package com.alibaba.tinker.publisher;
- 
-import java.io.IOException;
+
 import java.io.InputStream;
 import java.lang.reflect.Method;
- 
-
-
-
-
-
-
 
 import java.util.Properties;
 
 import com.alibaba.tinker.protocol.HessianHelper;
 import com.alibaba.tinker.protocol.ProtocolParser;
-import com.alibaba.tinker.protocol.request.TinkerRequest; 
 import com.alibaba.tinker.protocol.request.TinkerRequestDetail;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext; 
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.SimpleChannelInboundHandler;
 
 /**
  * 处理服务端接收到的请求。
@@ -51,10 +40,10 @@ public class RpcHandler extends ChannelInboundHandlerAdapter {
 		String implClass = p.getProperty(request.getServiceName().substring(0, request.getServiceName().indexOf(":")));
 		Class clazz = Class.forName(implClass);
 	    Object c = clazz.newInstance();
-        Method m = clazz.getDeclaredMethod(request.getMethodName());   
+        Method m = clazz.getDeclaredMethod(request.getMethodName(), request.getTypeArray());   
         
         // 第一个最简单的调用只支持无参数的方法调用
-        Object result = m.invoke(c); 
+        Object result = m.invoke(c, request.getValueArray()); 
         
         // 无返回值
         if(result == null){

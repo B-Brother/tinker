@@ -55,4 +55,21 @@ public class HessianHelper {
 		
 		return null;
 	}
+	
+	public static void main(String[] args) {
+		Short s = 24;
+		byte bb[] = serialize(s);
+		for(byte b : bb){
+			System.out.println(b);
+		}
+		
+		System.out.println(deserialize(bb).getClass());;
+	}
 }
+
+
+
+
+
+
+

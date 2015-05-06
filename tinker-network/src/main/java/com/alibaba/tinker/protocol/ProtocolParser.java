@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import io.netty.buffer.ByteBuf;
 
+import com.alibaba.tinker.constants.TypeConstants;
 import com.alibaba.tinker.ex.TinkerProtocolParseException; 
 import com.alibaba.tinker.protocol.request.TinkerRequestDetail;
 import com.alibaba.tinker.util.NumberUtil;
@@ -142,12 +143,17 @@ public class ProtocolParser {
 		if(methodParamsCount > 0){ 
 			for (int i = 0; i < methodParamsCount; i++) {
 				tempBuf = buf.readBytes(methodByteLengthArray[i]);
-				 
-				try {
-					methodParamTypeArray[i] = Class.forName(new String(tempBuf.array()));
-				} catch (ClassNotFoundException e) { 
-					e.printStackTrace();
-				}
+				
+				String type = new String(tempBuf.array());
+				if(TypeConstants.easyTypeMapping.get(type) != null){
+					methodParamTypeArray[i] = TypeConstants.easyTypeMapping.get(type);
+				} else {
+					try {
+						methodParamTypeArray[i] = Class.forName(type);
+					} catch (ClassNotFoundException e) { 
+						e.printStackTrace();
+					}
+				} 
 			}
 			
 			// 计算方法的参数值。
@@ -169,18 +175,29 @@ public class ProtocolParser {
 		}
 		
 		detail.setTypeArray(methodParamTypeArray);
+		
+		// 观察类型和值的匹配程度，如果遇到short和byte则强行转型value。
+		// 这样做的目的主要是为了解决Hessian不支持直接序列化byte和short类型以及char类型 
+		for (int i = 0; i < methodParamTypeArray.length; i++) {
+			String typeName = methodParamTypeArray[i].getName();
+			
+			if(typeName.equals("short") || typeName.equals("java.lang.Short")){
+				methodParamValueArray[i] = (short)(int)methodParamValueArray[i];
+			}  
+			if(typeName.equals("byte") || typeName.equals("java.lang.Byte")){
+				methodParamValueArray[i] = (byte)(int)methodParamValueArray[i];
+			}
+			if(typeName.equals("char") || typeName.equals("java.lang.Character")){
+				// 我们认为当类型是char，但是实际的value是字符串的时候。直接取字符串的第一个char就好了。
+				char v = methodParamValueArray[i].toString().charAt(0);
+				methodParamValueArray[i] = v;
+			}
+		}
+		
 		detail.setValueArray(methodParamValueArray);
 		detail.setMap(attributeMap);
 		
 		return detail;
-	}
-	
-//	public static TinkerResponse parseTinkerRequest(){
-//		
-//	}
-//
-//	public static TinkerHeartBeat parseTinkerRequest(){
-//		
-//	}
+	} 
 }
  

@@ -1,10 +1,16 @@
-package com.alibaba.tinker.main;
+package com.alibaba.tinker.baseinvoke;
  
 import com.alibaba.tinker.consumer.Consumer;
 import com.alibaba.tinker.publisher.Publisher;
 import com.alibaba.tinker.service.HelloWorldService;
 
-public class Main {
+/**
+ * 无参数，无返回值时候的调用情况
+ * 
+ * @author beckham
+ *
+ */
+public class VoidReturnNoArgumentInvoke {
 	public static void main(String[] args) {
 		// 启动Provider
 		Publisher publisher = new Publisher("com.alibaba.tinker.service.HelloWorldService:1.0.0.dev");
