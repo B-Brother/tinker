@@ -16,3 +16,6 @@
    new ObjectEncoder(),
    new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
      多一层转码之后造成了数据发送错误以及包判断后过大的问题
+
+6. 关于short byte先序列化再反序列化后会变成int的问题
+   A: 目前的Hessian貌似不支持short，byte的序列化。他的实现方案就是这样。 

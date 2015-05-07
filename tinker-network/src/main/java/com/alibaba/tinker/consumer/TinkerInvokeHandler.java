@@ -71,9 +71,7 @@ public class TinkerInvokeHandler implements InvocationHandler {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
-		} finally {
-			System.out.println("善后处理.");
-		}
+		} 
 	}
 	
 	public Object invoke(TinkerRequest request){ 
@@ -147,9 +145,7 @@ public class TinkerInvokeHandler implements InvocationHandler {
 		                         ChannelPipeline p = ch.pipeline();
 		                 
 		                         //p.addLast(new LoggingHandler(LogLevel.INFO));
-		                         p.addLast(new ObjectEncoder(),
-		                                   new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
-		                                   new ConsumerHandler(request));
+		                         p.addLast(new ConsumerHandler(request));
 		                     }
 		                 });
 
@@ -286,7 +282,7 @@ public class TinkerInvokeHandler implements InvocationHandler {
     	
     	// 参数类型描述字节长度数
     	for (int i = 0; i < paramCount; i++) {
-    		invokeByte = ArrayUtil.concat(invokeByte, NumberUtil.intToByte4(request.getMethod().getGenericParameterTypes()[i].getClass().getName().length()));
+    		invokeByte = ArrayUtil.concat(invokeByte, request.getMethod().getParameterTypes()[i].getName().length());
 		}
     	
     	// 类型所占用的类型字节长度数
@@ -298,7 +294,7 @@ public class TinkerInvokeHandler implements InvocationHandler {
 	    		valueBytesList.add(HessianHelper.serialize(value));
 	    	} 
 	    	for (int i = 0; i < paramCount; i++) { 
-	    		invokeByte = ArrayUtil.concat(invokeByte, valueBytesList.get(i).length);
+	    		invokeByte = ArrayUtil.concat(invokeByte, valueBytesList.get(i).length, true);
 			}
     	}
     	 
@@ -309,11 +305,11 @@ public class TinkerInvokeHandler implements InvocationHandler {
     	
     	// 类型的字符串表达
     	for (int i = 0; i < paramCount; i++) {
-    		invokeByte = ArrayUtil.concat(invokeByte, request.getMethod().getGenericParameterTypes()[i].getClass().getName().getBytes());
+    		invokeByte = ArrayUtil.concat(invokeByte, request.getMethod().getParameterTypes()[i].getName().getBytes());
 		} 
     	
     	// 值的表达
-    	for (int i = 0; i < request.getMethod().getGenericParameterTypes().length; i++) {
+    	for (int i = 0; i < paramCount; i++) {
     		invokeByte = ArrayUtil.concat(invokeByte, valueBytesList.get(i));
 		} 
 
@@ -326,11 +322,7 @@ public class TinkerInvokeHandler implements InvocationHandler {
     	invokeByte = ArrayUtil.concat(invokeByte, attributeByte);
     	     
     	return Unpooled.copiedBuffer(invokeByte);
-    }
-    
-    public static void main(String[] args) {
-		System.out.println(Integer.class.getName());
-	}
+    } 
 }
 
 

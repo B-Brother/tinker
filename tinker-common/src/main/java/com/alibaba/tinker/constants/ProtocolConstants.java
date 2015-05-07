@@ -7,9 +7,7 @@ public class ProtocolConstants {
 	
 	@SuppressWarnings("rawtypes")
 	public static final HashMap<String, Class> jdkTypeMap = new HashMap<String, Class>();
-	
-	// jdk原生类型在tinker协议中占据的字节数
-	public static final HashMap<String, Integer> jdkTypeSizeMap = new HashMap<String, Integer>();
+	 
 	
 	public static final HashMap<Integer, String> serializableTypeMap = new HashMap<Integer, String>();
 	
@@ -41,6 +39,14 @@ public class ProtocolConstants {
 	public static final String PROTOCOL_TYPE_RESPONSE = "RESPONSE";
 	
 	public static final String PROTOCOL_TYPE_HEARTBEAT = "HEARTBEAT";
+	
+	public static final int PROTOCOL_TYPE_RESPONSE_SUCCESS_CODE = 0x01;
+	
+	public static final int PROTOCOL_TYPE_RESPONSE_ERROR_CODE = 0x02; 
+	
+	public static final String PROTOCOL_TYPE_RESPONSE_SUCCESS = "SUCCESS";
+	
+	public static final String PROTOCOL_TYPE_RESPONSE_ERROR = "ERROR"; 
 	
 	
 	public static final int SERIALIZABLE_TYPE_JDK_CODE = 0x01;
@@ -75,14 +81,7 @@ public class ProtocolConstants {
 		jdkTypeMap.put("short", Short.class);
 		jdkTypeMap.put("char", Character.class);
 		jdkTypeMap.put("boolean", Boolean.class);
-		 
-		jdkTypeSizeMap.put("byte", 2);
-		jdkTypeSizeMap.put("int", 5);
-		jdkTypeSizeMap.put("long", 9);
-		jdkTypeSizeMap.put("short", 3);
-		jdkTypeSizeMap.put("char", 1);
-		jdkTypeSizeMap.put("boolean", 1);
-		
+		  
 		serializableCodeList.add(SERIALIZABLE_TYPE_JDK_CODE);
 		serializableCodeList.add(SERIALIZABLE_TYPE_HESSIAN2_CODE);
 		serializableCodeList.add(SERIALIZABLE_TYPE_HESSIAN3_CODE);
