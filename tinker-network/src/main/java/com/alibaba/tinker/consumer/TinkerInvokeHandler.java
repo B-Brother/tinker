@@ -71,9 +71,7 @@ public class TinkerInvokeHandler implements InvocationHandler {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
-		} finally {
-			System.out.println("善后处理.");
-		}
+		} 
 	}
 	
 	public Object invoke(TinkerRequest request){ 
@@ -147,9 +145,7 @@ public class TinkerInvokeHandler implements InvocationHandler {
 		                         ChannelPipeline p = ch.pipeline();
 		                 
 		                         //p.addLast(new LoggingHandler(LogLevel.INFO));
-		                         p.addLast(new ObjectEncoder(),
-		                                   new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
-		                                   new ConsumerHandler(request));
+		                         p.addLast(new ConsumerHandler(request));
 		                     }
 		                 });
 
@@ -298,7 +294,7 @@ public class TinkerInvokeHandler implements InvocationHandler {
 	    		valueBytesList.add(HessianHelper.serialize(value));
 	    	} 
 	    	for (int i = 0; i < paramCount; i++) { 
-	    		invokeByte = ArrayUtil.concat(invokeByte, valueBytesList.get(i).length);
+	    		invokeByte = ArrayUtil.concat(invokeByte, valueBytesList.get(i).length, true);
 			}
     	}
     	 

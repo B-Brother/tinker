@@ -40,6 +40,14 @@ public class ProtocolConstants {
 	
 	public static final String PROTOCOL_TYPE_HEARTBEAT = "HEARTBEAT";
 	
+	public static final int PROTOCOL_TYPE_RESPONSE_SUCCESS_CODE = 0x01;
+	
+	public static final int PROTOCOL_TYPE_RESPONSE_ERROR_CODE = 0x02; 
+	
+	public static final String PROTOCOL_TYPE_RESPONSE_SUCCESS = "SUCCESS";
+	
+	public static final String PROTOCOL_TYPE_RESPONSE_ERROR = "ERROR"; 
+	
 	
 	public static final int SERIALIZABLE_TYPE_JDK_CODE = 0x01;
 	

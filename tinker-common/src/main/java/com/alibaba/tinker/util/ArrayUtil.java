@@ -13,8 +13,16 @@ public class ArrayUtil {
 		return concat(a, bArr);
 	}
 	
-	public static byte[] concat(byte[] a, int b){
+	public static byte[] concat(byte[] a, int b){ 
 		byte bArr[] = new byte[]{(byte)b};
-		return concat(a, bArr);
+		return concat(a, bArr); 
+	}
+	
+	public static byte[] concat(byte[] a, int b, boolean reallyInt){ 
+		if(reallyInt){
+			return concat(a, NumberUtil.intToByte4(b));
+		}else{
+			return concat(a, (byte)b);
+		} 
 	}
 }

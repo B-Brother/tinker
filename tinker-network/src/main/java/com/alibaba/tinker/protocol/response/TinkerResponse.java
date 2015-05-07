@@ -42,11 +42,11 @@ public class TinkerResponse {
 	 */
 	public Object getData(){
 		try {
-			countDownLatch.await(100, TimeUnit.SECONDS);
+			countDownLatch.await(3, TimeUnit.SECONDS);
 		} catch (InterruptedException e) { 
 			e.printStackTrace();
-		}
-		
+		} 
+		 
 		return responseData;
 	}
 

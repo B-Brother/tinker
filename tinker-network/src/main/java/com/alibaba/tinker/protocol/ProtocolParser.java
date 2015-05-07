@@ -6,7 +6,10 @@ import io.netty.buffer.ByteBuf;
 
 import com.alibaba.tinker.constants.TypeConstants;
 import com.alibaba.tinker.ex.TinkerProtocolParseException; 
+import com.alibaba.tinker.holder.ResponseHolder;
+import com.alibaba.tinker.protocol.request.TinkerRequest;
 import com.alibaba.tinker.protocol.request.TinkerRequestDetail;
+import com.alibaba.tinker.protocol.response.TinkerResponse;
 import com.alibaba.tinker.util.NumberUtil;
 
 import static com.alibaba.tinker.constants.ProtocolConstants.*;
@@ -126,7 +129,7 @@ public class ProtocolParser {
 			
 			// 然后再算出每个方法的参数类型值实际占据的字节数, 这个值不需要我们自己算，客户端算好传过来
 			for (int i = 0; i < methodParamsCount; i++) {
-				methodParamValueLengthArray[i] = buf.readByte();
+				methodParamValueLengthArray[i] = NumberUtil.byte4ToInt(buf.readBytes(4).array(), 0);
 			}
 		}
 		
@@ -199,5 +202,75 @@ public class ProtocolParser {
 		
 		return detail;
 	} 
+	 
+	public static TinkerResponse parseTinkerResponse(TinkerRequest request, ByteBuf buf){ 
+		ByteBuf tempBuf = null;
+		TinkerResponse response = new TinkerResponse();
+		
+		// 魔数
+		tempBuf = buf.readBytes(8);
+		String magicNumberString = new String(tempBuf.array());
+		if(!magicNumberString.equals(MAGIC_NUMBER)){
+			throw new TinkerProtocolParseException("Tinker调用请求反序列化异常! magicNumber=" + magicNumberString);
+		} 
+		
+		// 客户端Tinker版本
+		tempBuf = buf.readBytes(6);
+		String clientTinkerVersion = new String(tempBuf.array());
+		  
+		// 请求类型 
+		int requestType = buf.readByte();
+		if(requestType != PROTOCOL_TYPE_RESPONSE_CODE){
+			throw new TinkerProtocolParseException("Tinker调用请求反序列化异常! requestType=" + requestType);
+		} 
+		response.setProtocolType("");
+		
+		// 序列化状态
+		int status = buf.readByte(); 
+		
+		// 序列化类型
+		int serializableType = buf.readByte();
+		if(!serializableCodeList.contains(serializableType)){
+			throw new TinkerProtocolParseException("Tinker调用请求反序列化异常! serializableType=" + serializableType);
+		}
+		response.setSerializationType("HESSIAN4");
+		 
+		// requestID
+		tempBuf = buf.readBytes(8); 
+		long key = NumberUtil.byteToLong(tempBuf.array());
+		
+		response.setStatus("SUCCESS");
+		
+		tempBuf = buf.readBytes(4); 
+		int dataLength = NumberUtil.byte4ToInt(tempBuf.array(), 0);
+		
+		tempBuf = buf.readBytes(dataLength);
+		Object result = HessianHelper.deserialize(tempBuf.array());
+		
+		String typeName = request.getMethod().getReturnType().getName();
+		if(typeName.equals("short") || typeName.equals("java.lang.Short")){
+			result = (short)(int)result;
+		}  
+		if(typeName.equals("byte") || typeName.equals("java.lang.Byte")){
+			result = (byte)(int)result;
+		}
+		if(typeName.equals("char") || typeName.equals("java.lang.Character")){
+			// 我们认为当类型是char，但是实际的value是字符串的时候。直接取字符串的第一个char就好了。
+			char v = result.toString().charAt(0);
+			result = v;
+		}
+		
+		// 这里实现需要调整 TODO
+		// 拿到Response
+    	TinkerResponse responseKeep = ResponseHolder.getInstance().getResponse(key);
+    	responseKeep.putResponseData(result);
+		return response;
+	}	
 }
+
+
+
+
+
+
  
