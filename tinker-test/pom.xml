@@ -20,14 +20,6 @@
 		<dependency>
 			<groupId>com.alibaba.rock</groupId>
 			<artifactId>tinker-network</artifactId> 
-		</dependency> 
-		<dependency>
-			<groupId>com.alibaba.rock</groupId>
-			<artifactId>tinker-register</artifactId> 
-		</dependency> 
-		<dependency>
-			<groupId>com.alibaba.rock</groupId>
-			<artifactId>tinker-common</artifactId> 
-		</dependency> 
+		</dependency>   
   </dependencies>
 </project>

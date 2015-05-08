@@ -12,8 +12,7 @@
 	<modules>
 		<module>tinker-common</module>
 		<module>tinker-network</module>
-		<module>tinker-test</module>
-    <module>tinker-register</module>
+		<module>tinker-test</module> 
   </modules>
 
     <properties>
@@ -82,12 +81,6 @@
 				<artifactId>netty-all</artifactId>
 				<version>4.0.26.Final</version>
 			</dependency>
-
-			<dependency>
-				<groupId>com.oracle</groupId>
-				<artifactId>ojdbc14</artifactId>
-				<version>10.2.0.3.0</version>
-			</dependency>  
 			<dependency>
 				<groupId>com.alibaba</groupId>
 				<artifactId>druid</artifactId>
@@ -146,14 +139,12 @@
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-jdbc</artifactId>
 				<version>${spring-version}</version>
-			</dependency> 
-
+			</dependency>
 			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjweaver</artifactId>
 				<version>1.8.4</version>
 			</dependency>
-
 			<dependency>
 				<groupId>com.alibaba</groupId>
 				<artifactId>fastjson</artifactId>
@@ -164,12 +155,11 @@
 				<artifactId>hessian</artifactId>
 				<version>4.0.7</version>
 			</dependency>
-<dependency>
-	<groupId>mysql</groupId>
-	<artifactId>mysql-connector-java</artifactId>
-	<version>5.1.26</version>
-</dependency>
-
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>5.1.26</version>
+            </dependency> 
 		</dependencies>
 	</dependencyManagement>
 </project>
