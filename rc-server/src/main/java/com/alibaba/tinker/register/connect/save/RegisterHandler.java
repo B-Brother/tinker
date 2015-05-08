@@ -26,8 +26,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.tinker.register.mapper.RegisterInterfaceMapper;
 import com.alibaba.tinker.register.object.RegisterInterfaceDo;
 import com.alibaba.tinker.register.protocol.RegisterProtocol;
-
-import io.netty.channel.ChannelHandler.Sharable;
+ 
 import io.netty.channel.ChannelHandlerContext; 
 import io.netty.channel.SimpleChannelInboundHandler;
  

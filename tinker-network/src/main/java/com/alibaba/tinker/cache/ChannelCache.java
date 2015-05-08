@@ -2,13 +2,9 @@ package com.alibaba.tinker.cache;
 
 import io.netty.channel.Channel;
  
-
-
-
 import java.util.ArrayList;
 import java.util.HashMap; 
-import java.util.List;
-import java.util.Random;
+import java.util.List; 
 
 /**
  * 保存和客户端建立起来的连接
