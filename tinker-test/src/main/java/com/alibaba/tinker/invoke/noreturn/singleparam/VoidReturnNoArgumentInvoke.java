@@ -22,7 +22,10 @@ public class VoidReturnNoArgumentInvoke {
 		consumer.setServiceName("com.alibaba.tinker.service.HelloWorldService:1.0.0.dev"); 
 		consumer.init();
 		
+		long start = System.currentTimeMillis();
 		HelloWorldService helloWorldService = (HelloWorldService) consumer.getObject(); 
 		helloWorldService.call();	
+		long end = System.currentTimeMillis();
+		System.out.println("本次调用耗时:" + (end - start) + "ms.");
 	}
 }
