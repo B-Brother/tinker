@@ -24,6 +24,7 @@ public class PoolTest {
 			queue.add(new MyRunnable(i));
 		}
 		
+		@SuppressWarnings("unused")
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10, 3000, TimeUnit.MILLISECONDS, queue);
 		 
 	}
