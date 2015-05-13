@@ -11,8 +11,17 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.lang.reflect.Proxy; 
+import java.util.List;
 
+import com.alibaba.tinker.cache.ChannelCache;
+import com.alibaba.tinker.cache.RegisterSuccessCache;
+import com.alibaba.tinker.cache.ServiceAddressCache;
+import com.alibaba.tinker.ex.TinkerWithoutPublisherException;
+import com.alibaba.tinker.future.RegisterSuccessFuture;
+import com.alibaba.tinker.generator.UUIDGenerator;
+import com.alibaba.tinker.handler.ConsumerHandler;
 import com.alibaba.tinker.handler.RegisterCenterHandler;
+import com.alibaba.tinker.protocol.request.TinkerRequest;
 import com.alibaba.tinker.util.Host;
  
 public final class Consumer {  
@@ -40,6 +49,8 @@ public final class Consumer {
 		buildProxyObject();
 		
 		buildConnection2RegisterCenter(serviceName);
+		
+		buildConnection2Provider(serviceName);
     }
     
     public Object getObject(){
@@ -81,6 +92,10 @@ public final class Consumer {
      *  RC回应: 地址列表信息，回写到ServiceAddressCache
      */ 
 	private void buildConnection2RegisterCenter(final String serviceName){  
+		RegisterSuccessFuture future = new RegisterSuccessFuture();
+		
+		RegisterSuccessCache.getInstance().put(serviceName, future);
+		
 		new Thread(new Runnable() {
 			
 			@Override
@@ -102,6 +117,10 @@ public final class Consumer {
 		                 });
 		  
 		                ChannelFuture f = b.connect(Host.RC_HOST, 8007).sync(); 
+		                
+		                RegisterSuccessFuture connectFuture = RegisterSuccessCache.getInstance().get(serviceName);
+		                connectFuture.putStatus(true);
+		                
 
 		            // Wait until the connection is closed.
 		            f.channel().closeFuture().sync(); 
@@ -113,6 +132,66 @@ public final class Consumer {
 			}
 		}).start();
     }
+	
+	/**
+     *  和服务提供者建立连接
+     */ 
+	private void buildConnection2Provider(final String serviceName){  
+		
+		// build TinkerRequest
+		long requestId = UUIDGenerator.getNextKey(); 
+		
+		final TinkerRequest request = new TinkerRequest(); 
+		request.setRequestId(requestId);
+		request.setSerizaliableType("HESSIAN4");
+		request.setServiceName(serviceName);
+					
+    	new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+		    	List<String> providerIPList = ServiceAddressCache.getInstance().get(serviceName);
+		    	
+		    	// 为什么这时候抛出异常？ 我觉得获取地址应该是初始化就你要做好的事情，现在已经到准备调用阶段了
+		    	if(providerIPList == null || providerIPList.size() == 0){
+		    		throw new TinkerWithoutPublisherException("无法找到服务提供者, serviceName=" + serviceName);
+		    	}
+		    	
+				for (String providerIp : providerIPList) {
+		    		EventLoopGroup group = new NioEventLoopGroup();
+		            try {
+		            	Bootstrap b = new Bootstrap();
+		                b.group(group)
+		                 .channel(NioSocketChannel.class)
+		                 .option(ChannelOption.TCP_NODELAY, true)
+		                 .handler(new ChannelInitializer<SocketChannel>() {
+		                     @Override
+		                     public void initChannel(SocketChannel ch) throws Exception {
+		                         ChannelPipeline p = ch.pipeline();
+		                 
+		                         //p.addLast(new LoggingHandler(LogLevel.INFO));
+		                         p.addLast(new ConsumerHandler());
+		                     }
+		                 });
+
+		                
+		                // 去连接每一个服务提供者的12200端口
+		                ChannelFuture f = b.connect(Host.RC_HOST, 12200).sync();    
+		                
+		                // 客户端把每个已经连接的Channel都缓存起来，
+		                ChannelCache.getInstance().put(serviceName, f.channel());
+
+		                // Wait until the connection is closed.
+		                f.channel().closeFuture().sync(); 
+		            } catch (InterruptedException e) { 
+		    			e.printStackTrace(); 
+					} finally { 
+		                group.shutdownGracefully();
+		            } 
+				}
+			}
+		}).start();
+    } 
 }
 
 

@@ -1,40 +1,24 @@
 package com.alibaba.tinker.consumer;
-
-import io.netty.bootstrap.Bootstrap;
+ 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectDecoder;
-import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.netty.channel.Channel; 
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;  
 import java.util.ArrayList; 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.List; 
 
 import com.alibaba.tinker.cache.ChannelCache;
-import com.alibaba.tinker.cache.ServiceAddressCache;
+import com.alibaba.tinker.cache.RegisterSuccessCache; 
 import com.alibaba.tinker.constants.ProtocolConstants;
-import com.alibaba.tinker.ex.TinkerWithoutPublisherException;
-import com.alibaba.tinker.generator.UUIDGenerator;
-import com.alibaba.tinker.handler.ConsumerHandler;
-import com.alibaba.tinker.handler.RegisterCenterHandler;
+import com.alibaba.tinker.ex.TinkerConnectException; 
+import com.alibaba.tinker.generator.UUIDGenerator; 
 import com.alibaba.tinker.holder.ResponseHolder; 
 import com.alibaba.tinker.protocol.HessianHelper;
 import com.alibaba.tinker.protocol.request.TinkerRequest;
 import com.alibaba.tinker.protocol.response.TinkerResponse;
-import com.alibaba.tinker.util.ArrayUtil;
-import com.alibaba.tinker.util.Host; 
+import com.alibaba.tinker.util.ArrayUtil; 
 import com.alibaba.tinker.util.NumberUtil;
 
 /**
@@ -77,96 +61,31 @@ public class TinkerInvokeHandler implements InvocationHandler {
 	public Object invoke(TinkerRequest request){ 
     	String serviceName = request.getServiceName(); 
     	
-    	// 根据service标识名称去获取服务端提供者地址列表
-    	buildConnection2RegisterCenter(serviceName);
-    	
-		// 开发版本，先等5秒，等服务提供者IP准备好，后续再想更优雅的办法
-    	try {
-			TimeUnit.SECONDS.sleep(5);
-		} catch (InterruptedException e) { 
-			e.printStackTrace();
-		}
-    	  
-    	// 和服务端建立连接(这里应该和所有的服务端都建立连接)
-    	buildConnection2Provider(serviceName, request);
-    	
-		// 开发版本，先等5秒，等客户端连接完成
-    	try {
-			TimeUnit.SECONDS.sleep(5);
-		} catch (InterruptedException e) { 
-			e.printStackTrace();
-		}
-    	
-    	// 当和服务端建立连接之后，应该有一堆ChannelList了。  
-    	// 这时候随机抽取一个Channel, 进行连接。
-    	Channel channel = ChannelCache.getInstance().select(serviceName);
-    	
-    	// 本地调用唯一的标识key。
-    	long key = UUIDGenerator.getNextKey(); 
-    	ResponseHolder.getInstance().writeResponse(key, new TinkerResponse());
-    	
-    	// 向这个随机选出来的服务提供者发送远程方法调用数据
-    	channel.writeAndFlush(buildInvokeByteInfo(request, key));
-    	
-    	// 拿到Response
-    	TinkerResponse response = ResponseHolder.getInstance().getResponse(key);
-    	
-    	// 远程数据返回, 用CountDownLatch来控制线程之间的通信
-    	return response.getData();
+    	boolean isRcConnectReady = RegisterSuccessCache.getInstance().get(serviceName).get();
+    	if(isRcConnectReady){  
+        	// 当和服务端建立连接之后，应该有一堆ChannelList了。  
+        	// 这时候随机抽取一个Channel, 进行连接。
+        	Channel channel = ChannelCache.getInstance().select(serviceName);
+        	
+        	// 本地调用唯一的标识key。
+        	long key = UUIDGenerator.getNextKey(); 
+        	ResponseHolder.getInstance().writeResponse(key, new TinkerResponse());
+        	
+        	// 向这个随机选出来的服务提供者发送远程方法调用数据
+        	channel.writeAndFlush(buildInvokeByteInfo(request, key));
+        	
+        	// 拿到Response
+        	TinkerResponse response = ResponseHolder.getInstance().getResponse(key);
+        	
+        	// 远程数据返回, 用CountDownLatch来控制线程之间的通信
+        	return response.getData();
+    	} else {
+    		throw new TinkerConnectException("注册中心连接异常！");
+    	} 
     }
     
     //================================================================================================================
     
-    /**
-     *  和服务提供者建立连接
-     */ 
-	private void buildConnection2Provider(final String serviceName, final TinkerRequest request){    	 
-    	new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-		    	List<String> providerIPList = ServiceAddressCache.getInstance().get(serviceName);
-		    	
-		    	// 为什么这时候抛出异常？ 我觉得获取地址应该是初始化就你要做好的事情，现在已经到准备调用阶段了
-		    	if(providerIPList == null || providerIPList.size() == 0){
-		    		throw new TinkerWithoutPublisherException("无法找到服务提供者, serviceName=" + serviceName);
-		    	}
-		    	
-				for (String providerIp : providerIPList) {
-		    		EventLoopGroup group = new NioEventLoopGroup();
-		            try {
-		            	Bootstrap b = new Bootstrap();
-		                b.group(group)
-		                 .channel(NioSocketChannel.class)
-		                 .option(ChannelOption.TCP_NODELAY, true)
-		                 .handler(new ChannelInitializer<SocketChannel>() {
-		                     @Override
-		                     public void initChannel(SocketChannel ch) throws Exception {
-		                         ChannelPipeline p = ch.pipeline();
-		                 
-		                         //p.addLast(new LoggingHandler(LogLevel.INFO));
-		                         p.addLast(new ConsumerHandler(request));
-		                     }
-		                 });
-
-		                
-		                // 去连接每一个服务提供者的12200端口
-		                ChannelFuture f = b.connect(Host.RC_HOST, 12200).sync();    
-		                
-		                // 客户端把每个已经连接的Channel都缓存起来，
-		                ChannelCache.getInstance().put(serviceName, f.channel());
-
-		                // Wait until the connection is closed.
-		                f.channel().closeFuture().sync(); 
-		            } catch (InterruptedException e) { 
-		    			e.printStackTrace(); 
-					} finally { 
-		                group.shutdownGracefully();
-		            } 
-				}
-			}
-		}).start();
-    }
     
     
     

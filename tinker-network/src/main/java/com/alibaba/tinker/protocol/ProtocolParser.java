@@ -203,7 +203,7 @@ public class ProtocolParser {
 		return detail;
 	} 
 	 
-	public static TinkerResponse parseTinkerResponse(TinkerRequest request, ByteBuf buf){ 
+	public static TinkerResponse parseTinkerResponse(ByteBuf buf){ 
 		ByteBuf tempBuf = null;
 		TinkerResponse response = new TinkerResponse();
 		
@@ -240,7 +240,8 @@ public class ProtocolParser {
 		long key = NumberUtil.byteToLong(tempBuf.array());
 		
 		response.setStatus("SUCCESS");
-		
+		 
+		 
 		tempBuf = buf.readBytes(4); 
 		int dataLength = NumberUtil.byte4ToInt(tempBuf.array(), 0);
 		

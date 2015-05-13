@@ -1,20 +1,12 @@
 package com.alibaba.tinker.handler;
     
-import com.alibaba.tinker.protocol.ProtocolParser; 
-import com.alibaba.tinker.protocol.request.TinkerRequest;
+import com.alibaba.tinker.protocol.ProtocolParser;  
 
 import io.netty.buffer.ByteBuf;  
 import io.netty.channel.ChannelHandlerContext; 
 import io.netty.channel.ChannelInboundHandlerAdapter; 
 
 public class ConsumerHandler extends ChannelInboundHandlerAdapter { 
-	
-	private TinkerRequest request;
-	
-	public ConsumerHandler(TinkerRequest request) {
-		this.request = request;
-	}
-	
 	
     /**
      *  第1-8个字节:    magicNumber: B-TINKER
@@ -32,7 +24,7 @@ public class ConsumerHandler extends ChannelInboundHandlerAdapter {
     		throws Exception {
     	System.out.println("客户端:收到服务提供者的response响应消息。");
     	
-    	ProtocolParser.parseTinkerResponse(request, (ByteBuf) msg); 	
+    	ProtocolParser.parseTinkerResponse( (ByteBuf) msg); 	
     }
 }
 
