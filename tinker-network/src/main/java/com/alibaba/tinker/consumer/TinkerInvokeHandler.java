@@ -7,6 +7,7 @@ import io.netty.channel.Channel;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;  
 import java.util.ArrayList; 
+import java.util.Collections;
 import java.util.List; 
 
 import com.alibaba.tinker.cache.ChannelCache;
@@ -61,8 +62,10 @@ public class TinkerInvokeHandler implements InvocationHandler {
 	public Object invoke(TinkerRequest request){ 
     	String serviceName = request.getServiceName(); 
     	
-    	boolean isRcConnectReady = RegisterSuccessCache.getInstance().get(serviceName).get();
-    	if(isRcConnectReady){  
+    	List<Channel> channelList = ChannelCache.getInstance().get(serviceName);
+    	
+    	boolean isConnectProviderReady = channelList != null && channelList.size() > 0;
+    	if(isConnectProviderReady){  
         	// 当和服务端建立连接之后，应该有一堆ChannelList了。  
         	// 这时候随机抽取一个Channel, 进行连接。
         	Channel channel = ChannelCache.getInstance().select(serviceName);

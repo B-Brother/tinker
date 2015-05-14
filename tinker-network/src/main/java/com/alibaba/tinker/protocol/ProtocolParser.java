@@ -241,6 +241,11 @@ public class ProtocolParser {
 		
 		response.setStatus("SUCCESS");
 		 
+		
+		int typeLength = buf.readByte();
+		
+		tempBuf = buf.readBytes(typeLength);
+		String typeName = new String(tempBuf.array());
 		 
 		tempBuf = buf.readBytes(4); 
 		int dataLength = NumberUtil.byte4ToInt(tempBuf.array(), 0);
@@ -248,7 +253,6 @@ public class ProtocolParser {
 		tempBuf = buf.readBytes(dataLength);
 		Object result = HessianHelper.deserialize(tempBuf.array());
 		
-		String typeName = request.getMethod().getReturnType().getName();
 		if(typeName.equals("short") || typeName.equals("java.lang.Short")){
 			result = (short)(int)result;
 		}  

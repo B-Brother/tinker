@@ -50,7 +50,10 @@ public final class Consumer {
 		
 		buildConnection2RegisterCenter(serviceName);
 		
-		buildConnection2Provider(serviceName);
+		boolean isRcConnectReady = RegisterSuccessCache.getInstance().get(serviceName).get();
+    	if(isRcConnectReady){ 
+    		buildConnection2Provider(serviceName);    		
+    	}
     }
     
     public Object getObject(){
@@ -110,18 +113,16 @@ public final class Consumer {
 		                 @Override
 		                 public void initChannel(SocketChannel ch) throws Exception {
 		                     ChannelPipeline p = ch.pipeline();
-		             
-		                     //p.addLast(new LoggingHandler(LogLevel.INFO));
+		              
 		                     p.addLast(new RegisterCenterHandler(serviceName));
-		                     }
-		                 });
-		  
-		                ChannelFuture f = b.connect(Host.RC_HOST, 8007).sync(); 
-		                
-		                RegisterSuccessFuture connectFuture = RegisterSuccessCache.getInstance().get(serviceName);
-		                connectFuture.putStatus(true);
-		                
-
+		                 }
+	                });
+	  
+	                ChannelFuture f = b.connect(Host.RC_HOST, 8007).sync(); 
+	                
+	                RegisterSuccessFuture connectFuture = RegisterSuccessCache.getInstance().get(serviceName);
+	                connectFuture.putStatus(true);
+ 
 		            // Wait until the connection is closed.
 		            f.channel().closeFuture().sync(); 
 		        } catch (InterruptedException e) { 

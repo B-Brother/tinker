@@ -54,7 +54,7 @@ public class RpcHandler extends ChannelInboundHandlerAdapter {
         } 
         Channel channel = ctx.channel();  
         
-        channel.writeAndFlush(buildResponseByteBuf(request, result));
+        channel.writeAndFlush(buildResponseByteBuf(request, result, m));
 	}
 	
 	/**
@@ -68,7 +68,7 @@ public class RpcHandler extends ChannelInboundHandlerAdapter {
 		第28个字节至末尾: 序列化数据
 	 * @return
 	 */
-	private ByteBuf buildResponseByteBuf(TinkerRequestDetail request, Object response){
+	private ByteBuf buildResponseByteBuf(TinkerRequestDetail request, Object response, Method m){
 		byte[] invokeByte = new byte[0];
     	
     	// 魔数 & 版本
@@ -86,6 +86,14 @@ public class RpcHandler extends ChannelInboundHandlerAdapter {
     	 
     	// 自增长ID
     	invokeByte = ArrayUtil.concat(invokeByte, NumberUtil.longToByte8(request.getRequestId())); 
+ 
+    	
+		String typeName = m.getReturnType().getName();
+    	// 返回的方法类型字符串长度
+		invokeByte = ArrayUtil.concat(invokeByte, typeName.length()); 
+		
+    	// 返回的方法类型字符串表达
+		invokeByte = ArrayUtil.concat(invokeByte, typeName.getBytes()); 
     	
     	byte[] responseByte = HessianHelper.serialize(response);
     	
