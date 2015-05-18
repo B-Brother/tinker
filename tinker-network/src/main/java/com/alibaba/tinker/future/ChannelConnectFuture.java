@@ -3,15 +3,17 @@ package com.alibaba.tinker.future;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-/** 
+/**
+ * 通道连接Future。当前专值客户端和服务端的连接。
  * 
  * @author beckham
  *
  */
-public class ConnectProviderSuccessFuture { 
-	
-	private boolean isReady = false; 
-	 
+public class ChannelConnectFuture {
+ 
+	private boolean isReady;
+	   
+	// countdown数据
 	private CountDownLatch countDownLatch = new CountDownLatch(1);
 
 	/**
@@ -31,7 +33,7 @@ public class ConnectProviderSuccessFuture {
 	 * 
 	 * @return
 	 */
-	public boolean get() {
+	public Object get(String serviceName) {
 		try {
 			countDownLatch.await(3000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {

@@ -6,14 +6,14 @@ import io.netty.channel.Channel;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;  
-import java.util.ArrayList; 
-import java.util.Collections;
+import java.util.ArrayList;  
 import java.util.List; 
 
-import com.alibaba.tinker.cache.ChannelCache;
-import com.alibaba.tinker.cache.RegisterSuccessCache; 
+import com.alibaba.tinker.cache.ChannelCache; 
+import com.alibaba.tinker.cache.ProviderConnectSuccessCache;
 import com.alibaba.tinker.constants.ProtocolConstants;
 import com.alibaba.tinker.ex.TinkerConnectException; 
+import com.alibaba.tinker.future.ProviderConnectSuccessFuture;
 import com.alibaba.tinker.generator.UUIDGenerator; 
 import com.alibaba.tinker.holder.ResponseHolder; 
 import com.alibaba.tinker.protocol.HessianHelper;
@@ -62,10 +62,8 @@ public class TinkerInvokeHandler implements InvocationHandler {
 	public Object invoke(TinkerRequest request){ 
     	String serviceName = request.getServiceName(); 
     	
-    	List<Channel> channelList = ChannelCache.getInstance().get(serviceName);
-    	
-    	boolean isConnectProviderReady = channelList != null && channelList.size() > 0;
-    	if(isConnectProviderReady){  
+    	ProviderConnectSuccessFuture connFuture = ProviderConnectSuccessCache.getInstance().get(serviceName); 
+    	if(connFuture.get()){  
         	// 当和服务端建立连接之后，应该有一堆ChannelList了。  
         	// 这时候随机抽取一个Channel, 进行连接。
         	Channel channel = ChannelCache.getInstance().select(serviceName);
@@ -83,7 +81,7 @@ public class TinkerInvokeHandler implements InvocationHandler {
         	// 远程数据返回, 用CountDownLatch来控制线程之间的通信
         	return response.getData();
     	} else {
-    		throw new TinkerConnectException("注册中心连接异常！");
+    		throw new TinkerConnectException("服务提供者建立连接异常！");
     	} 
     }
     

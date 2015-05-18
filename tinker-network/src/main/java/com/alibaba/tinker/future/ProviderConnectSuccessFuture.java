@@ -1,20 +1,11 @@
 package com.alibaba.tinker.future;
- 
-import java.util.List; 
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-/**
- * 负责远程接口的IP的提供
- * 
- * @author yingchao.zyc
- *
- */
-public class ProviderAddressFuture { 
-	
-	private List<String> addressList;
-	   
-	// countdown数据
+public class ProviderConnectSuccessFuture {
+	private boolean isReady = false; 
+	 
 	private CountDownLatch countDownLatch = new CountDownLatch(1);
 
 	/**
@@ -22,8 +13,8 @@ public class ProviderAddressFuture {
 	 * 
 	 * @param responseData
 	 */
-	public void putResponseData(List<String> addressList) {
-		this.addressList = addressList;
+	public void putStatus(boolean isReady) {
+		this.isReady = isReady;
 		
 		// 数据减少，await释放
 		countDownLatch.countDown();
@@ -34,13 +25,13 @@ public class ProviderAddressFuture {
 	 * 
 	 * @return
 	 */
-	public List<String> get() {
+	public boolean get() {
 		try {
 			countDownLatch.await(3000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
-		return addressList;
+		return isReady;
 	}
 }

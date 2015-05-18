@@ -41,8 +41,8 @@ public class RegisterHandler extends SimpleChannelInboundHandler<String> {
 	
     @Override
     public void channelRead0(ChannelHandlerContext ctx, String msg) {
-		JSONObject json = JSONObject.parseObject(msg);
-		  
+		JSONObject json = JSONObject.parseObject(msg); 
+		
     	String type = json.getString("type"); 
     	if(type.equals("consumer")){
         	System.out.println("注册中心:收到了consumer消息"); 

@@ -9,19 +9,22 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 
 import java.lang.reflect.Proxy; 
 import java.util.List;
 
 import com.alibaba.tinker.cache.ChannelCache;
-import com.alibaba.tinker.cache.RegisterSuccessCache;
-import com.alibaba.tinker.cache.ServiceAddressCache;
-import com.alibaba.tinker.ex.TinkerWithoutPublisherException;
-import com.alibaba.tinker.future.RegisterSuccessFuture;
-import com.alibaba.tinker.generator.UUIDGenerator;
+import com.alibaba.tinker.cache.ProviderAddressCache;
+import com.alibaba.tinker.cache.ProviderConnectSuccessCache;
+import com.alibaba.tinker.cache.RegisterSuccessCache; 
+import com.alibaba.tinker.ex.TinkerConnectException;
+import com.alibaba.tinker.future.ProviderConnectSuccessFuture;
+import com.alibaba.tinker.future.RegisterSuccessFuture; 
 import com.alibaba.tinker.handler.ConsumerHandler;
-import com.alibaba.tinker.handler.RegisterCenterHandler;
-import com.alibaba.tinker.protocol.request.TinkerRequest;
+import com.alibaba.tinker.handler.RegisterCenterHandler; 
 import com.alibaba.tinker.util.Host;
  
 public final class Consumer {  
@@ -44,6 +47,7 @@ public final class Consumer {
 	 * 
 	 * 1. 生成代理对象。
 	 * 2. 和注册中心(RC)建立起连接
+	 * 3. 从注册中心获取当前接口有哪些对应的ipAddress，和这些ipAddress建立直连
 	 */ 
 	public void init(){
 		buildProxyObject();
@@ -53,6 +57,8 @@ public final class Consumer {
 		boolean isRcConnectReady = RegisterSuccessCache.getInstance().get(serviceName).get();
     	if(isRcConnectReady){ 
     		buildConnection2Provider(serviceName);    		
+    	}else{
+    		throw new TinkerConnectException("客户端:连接注册中心异常，serviceName=" + serviceName);
     	}
     }
     
@@ -114,7 +120,10 @@ public final class Consumer {
 		                 public void initChannel(SocketChannel ch) throws Exception {
 		                     ChannelPipeline p = ch.pipeline();
 		              
-		                     p.addLast(new RegisterCenterHandler(serviceName));
+		                     p.addLast(
+		                             new ObjectEncoder(),
+		                             new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
+		                    		 new RegisterCenterHandler(serviceName));
 		                 }
 	                });
 	  
@@ -138,26 +147,17 @@ public final class Consumer {
      *  和服务提供者建立连接
      */ 
 	private void buildConnection2Provider(final String serviceName){  
+		ProviderConnectSuccessFuture future = new ProviderConnectSuccessFuture();
 		
-		// build TinkerRequest
-		long requestId = UUIDGenerator.getNextKey(); 
+		ProviderConnectSuccessCache.getInstance().put(serviceName, future); 
+		 
+    	final List<String> providerIPList = ProviderAddressCache.getInstance().get(serviceName).get();
 		
-		final TinkerRequest request = new TinkerRequest(); 
-		request.setRequestId(requestId);
-		request.setSerizaliableType("HESSIAN4");
-		request.setServiceName(serviceName);
-					
     	new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
-		    	List<String> providerIPList = ServiceAddressCache.getInstance().get(serviceName);
-		    	
-		    	// 为什么这时候抛出异常？ 我觉得获取地址应该是初始化就你要做好的事情，现在已经到准备调用阶段了
-		    	if(providerIPList == null || providerIPList.size() == 0){
-		    		throw new TinkerWithoutPublisherException("无法找到服务提供者, serviceName=" + serviceName);
-		    	}
-		    	
+		    	   
 				for (String providerIp : providerIPList) {
 		    		EventLoopGroup group = new NioEventLoopGroup();
 		            try {
@@ -168,28 +168,28 @@ public final class Consumer {
 		                 .handler(new ChannelInitializer<SocketChannel>() {
 		                     @Override
 		                     public void initChannel(SocketChannel ch) throws Exception {
-		                         ChannelPipeline p = ch.pipeline();
-		                 
-		                         //p.addLast(new LoggingHandler(LogLevel.INFO));
+		                         ChannelPipeline p = ch.pipeline(); 
+		                         
 		                         p.addLast(new ConsumerHandler());
 		                     }
 		                 });
 
 		                
 		                // 去连接每一个服务提供者的12200端口
-		                ChannelFuture f = b.connect(Host.RC_HOST, 12200).sync();    
-		                
+		                ChannelFuture f = b.connect(Host.RC_HOST, 12200).sync();  
+		                 
 		                // 客户端把每个已经连接的Channel都缓存起来，
 		                ChannelCache.getInstance().put(serviceName, f.channel());
-
-		                // Wait until the connection is closed.
-		                f.channel().closeFuture().sync(); 
+		                 
 		            } catch (InterruptedException e) { 
 		    			e.printStackTrace(); 
 					} finally { 
 		                group.shutdownGracefully();
 		            } 
 				}
+				
+				ProviderConnectSuccessFuture connectFuture = ProviderConnectSuccessCache.getInstance().get(serviceName);
+                connectFuture.putStatus(true);
 			}
 		}).start();
     } 

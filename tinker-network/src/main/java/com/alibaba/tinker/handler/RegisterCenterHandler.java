@@ -3,7 +3,8 @@ package com. alibaba.tinker.handler;
 import java.util.List;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.tinker.cache.ServiceAddressCache; 
+import com.alibaba.tinker.cache.ProviderAddressCache; 
+import com.alibaba.tinker.future.ProviderAddressFuture;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -24,6 +25,11 @@ public class RegisterCenterHandler extends SimpleChannelInboundHandler<String> {
 	
     @Override
     public void channelActive(ChannelHandlerContext ctx) { 
+    	ProviderAddressFuture future = new ProviderAddressFuture();
+		
+		ProviderAddressCache.getInstance().put(serviceName, future); 
+    	
+    	
     	// 通道激活时候向RC请求该服务提供者IP列表  
     	JSONObject json = new JSONObject();
     	json.put("serviceName", serviceName); 
@@ -43,8 +49,11 @@ public class RegisterCenterHandler extends SimpleChannelInboundHandler<String> {
     	
     	List<String> ipList = (List<String>) json.get("addressList");
     	if(ipList != null && ipList.size() != 0){
-        	System.out.println("客户端:收到服务提供列表。" + ipList);
-    		ServiceAddressCache.getInstance().put(serviceName, ipList);
+        	System.out.println("客户端:收到服务提供列表。" + ipList); 
+    		
+    		ProviderAddressFuture future = ProviderAddressCache.getInstance().get(serviceName);
+    		future.putResponseData(ipList);
+    		
     	}else{
     		// 未能获取到服务地址，这里需要优雅的提示
     		System.out.println(serviceName + "未能在RC找到服务提供者");
