@@ -183,9 +183,7 @@ public final class Consumer {
 		                 
 		            } catch (InterruptedException e) { 
 		    			e.printStackTrace(); 
-					} finally { 
-		                group.shutdownGracefully();
-		            } 
+					}  
 				}
 				
 				ProviderConnectSuccessFuture connectFuture = ProviderConnectSuccessCache.getInstance().get(serviceName);

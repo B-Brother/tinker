@@ -83,8 +83,8 @@ public final class Publisher {
 		             .childHandler(new ChannelInitializer<SocketChannel>() {
 		                 @Override
 		                 public void initChannel(SocketChannel ch) throws Exception {
-		                     ChannelPipeline p = ch.pipeline();
-		                     //p.addLast(new LoggingHandler(LogLevel.INFO));
+		                     ChannelPipeline p = ch.pipeline(); 
+		                     
 		                     p.addLast(new RpcHandler());
 		                 }
 		             });

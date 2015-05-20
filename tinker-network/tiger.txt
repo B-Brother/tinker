@@ -21,3 +21,9 @@
    A: 目前的Hessian貌似不支持short，byte的序列化。他的实现方案就是这样。 
    
 7. 貌似非ByteBuf类型在数据传输的时候需要加上ObjectEncoder和ObjectDecoder(实际程序结果)。
+
+8. Unexpected exception in the selector loop. java.util.concurrent.RejectedExecutionException: 
+	event executor terminated at io.netty.util.concurrent.SingleThreadEventExecutor.reject
+	 	
+   A. 感谢伟大的stackOverflow。 http://stackoverflow.com/questions/17362839/netty4-unexpected-exception-in-the-selector-loop。
+   group.shutdownGracefully(); 不要在消息还没发送完成之前调用。 
