@@ -26,7 +26,7 @@ public class PublisherHandler extends SimpleChannelInboundHandler<String> {
     	json.put("type", "publish");
     	 
         ctx.writeAndFlush(json.toJSONString()); 
-        System.out.println("服务提供者:请求服务提供地址信息完成, json=" + json.toJSONString());
+        System.out.println("服务提供者:请求服务提供地址信息完成, json=" + json.toJSONString()); 
     }
 
     @Override
