@@ -66,7 +66,7 @@ public final class Publisher {
         // 将线程池的初始化放到这里很明显不合适。但是由于初始时候和RC交互的协议设计的很丑陋，
         // so，先放到这里，后边调整。 
         // PS: 这个线程池的各个size后续也需要做到可配置
-        ThreadPoolManager threadPoolManager = new ThreadPoolManager();
+        ThreadPoolManager threadPoolManager = ThreadPoolManager.getInstance();
         threadPoolManager.allocateThreadPool(serviceName, 10, 30);
     }
     

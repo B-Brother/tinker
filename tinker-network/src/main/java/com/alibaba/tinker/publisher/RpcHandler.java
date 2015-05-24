@@ -8,6 +8,7 @@ import com.alibaba.tinker.constants.ProtocolConstants;
 import com.alibaba.tinker.protocol.HessianHelper;
 import com.alibaba.tinker.protocol.ProtocolParser;
 import com.alibaba.tinker.protocol.request.TinkerRequestDetail;
+import com.alibaba.tinker.threads.ThreadPoolManager;
 import com.alibaba.tinker.util.ArrayUtil;
 import com.alibaba.tinker.util.NumberUtil;
 
@@ -26,35 +27,22 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 public class RpcHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		System.out.println("服务提供者:通道已经激活。");
+		// nothing to do
 	} 
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
 		System.out.println("服务提供者:收到客户端的远程方法调用请求。");
+		 
 		TinkerRequestDetail request = ProtocolParser.parseTinkerRequest((ByteBuf) msg);
 		 
 		InputStream in = ClassLoader.getSystemResourceAsStream("provider.properties");
 		Properties p = new Properties();
 		p.load(in);
 		
-		String implClass = p.getProperty(request.getServiceName().substring(0, request.getServiceName().indexOf(":")));
-		Class clazz = Class.forName(implClass);
-	    Object c = clazz.newInstance();
-        Method m = clazz.getDeclaredMethod(request.getMethodName(), request.getTypeArray());   
-        
-        // 第一个最简单的调用只支持无参数的方法调用
-        Object result = m.invoke(c, request.getValueArray()); 
-        
-        // 无返回值
-        if(result == null){
-        	return;
-        } 
-        Channel channel = ctx.channel();  
-        
-        channel.writeAndFlush(buildResponseByteBuf(request, result, m));
+		ThreadPoolManager manager = ThreadPoolManager.getInstance();
+		manager.getExecutor(request.getServiceName()).execute(new RequestHandleRunner(ctx.channel(), request, p));
 	}
 	
 	/**
@@ -118,4 +106,53 @@ public class RpcHandler extends ChannelInboundHandlerAdapter {
         cause.printStackTrace();
         ctx.close();
     }
+    
+    private class RequestHandleRunner implements Runnable{
+
+    	private Channel channel;
+    	
+    	private TinkerRequestDetail request;
+    	
+    	private Properties p;
+    	
+    	public RequestHandleRunner(Channel channel, TinkerRequestDetail request, Properties p){
+    		this.channel = channel;
+    		this.request = request;
+    		this.p = p;
+    	}
+    	
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public void run() {
+			try { 
+				String implClass = p.getProperty(request.getServiceName().substring(0, request.getServiceName().indexOf(":")));
+				Class clazz = Class.forName(implClass);
+			    Object c = clazz.newInstance();
+		        Method m = clazz.getDeclaredMethod(request.getMethodName(), request.getTypeArray());   
+		         
+		        Object result = m.invoke(c, request.getValueArray()); 
+		        
+		        // 无返回值
+		        if(result == null){
+		        	return;
+		        }  
+		        
+		        channel.writeAndFlush(buildResponseByteBuf(request, result, m));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+    	
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
