@@ -1,236 +1,169 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans>
-	<bean service="com.alibaba.tinker.service.HelloWorldService">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloWorldService"/>
-		<property name="version" value="1.0.0.dev"/>
+	<bean id="helloWorldService" class="com.alibaba.tinker.service.impl.DefaultHelloWorldService"/>
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloWorldService"/>
+		<property name="target" value="helloWorldService"/>
+		<property name="version" value="1.0.0.dev"/>					
 		<property name="timeout" value="3000"/> 
 		<property name="threadPoolCoreSize" value="5"/>
 		<property name="threadPoolMaxiumSize" value="10"/>
+		<property name="serializableType" value="HESSIAN4"/>
 	</bean>
 	 
-	<bean service="com.alibaba.tinker.service.HelloWorld2Service">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloWorld2Service"/>
+	 
+	<bean id="helloWorld2Service" class="com.alibaba.tinker.service.impl.DefaultHelloWorld2Service"/> 
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloWorld2Service"/>
+		<property name="target" value="helloWorld2Service"/>
 		<property name="version" value="1.0.0.dev"/>
 		<property name="timeout" value="3000"/> 
 		<property name="threadPoolCoreSize" value="5"/>
 		<property name="threadPoolMaxiumSize" value="10"/>
+		<property name="serializableType" value="HESSIAN4"/>
 	</bean>
 	
-	<bean service="com.alibaba.tinker.service.HelloWorld3Service">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloWorld3Service"/>
+	
+	<bean id="helloWorld3Service" class="com.alibaba.tinker.service.impl.DefaultHelloWorld3Service"/> 
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloWorld3Service"/>
+		<property name="target" value="helloWorld3Service"/>
 		<property name="version" value="1.0.0.dev"/>
 		<property name="timeout" value="3000"/> 
 		<property name="threadPoolCoreSize" value="5"/>
 		<property name="threadPoolMaxiumSize" value="10"/>
+		<property name="serializableType" value="HESSIAN4"/>
 	</bean> 
 	
-	<bean service="com.alibaba.tinker.service.HelloShortService">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloShortService"/>
+	
+	<bean id="helloShortService" class="com.alibaba.tinker.service.impl.DefaultHelloShortService"/> 
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloShortService"/>
+		<property name="target" value="helloShortService"/>
 		<property name="version" value="1.0.0.dev"/>
 		<property name="timeout" value="3000"/> 
 		<property name="threadPoolCoreSize" value="5"/>
 		<property name="threadPoolMaxiumSize" value="10"/>
+		<property name="serializableType" value="HESSIAN4"/>
 	</bean> 
 	
-	<bean service="com.alibaba.tinker.service.HelloShortBoxingService">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloShortBoxingService"/>
+	
+	<bean id="helloShortBoxingService" class="com.alibaba.tinker.service.impl.DefaultHelloShortBoxingService"/> 
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloShortBoxingService"/>
+		<property name="target" value="helloShortBoxingService"/>
 		<property name="version" value="1.0.0.dev"/>
 		<property name="timeout" value="3000"/> 
 		<property name="threadPoolCoreSize" value="5"/>
 		<property name="threadPoolMaxiumSize" value="10"/>
+		<property name="serializableType" value="HESSIAN4"/>
 	</bean> 
 	
-	<bean service="com.alibaba.tinker.service.HelloByteService">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloByteService"/>
+	
+	<bean id="helloByteService" class="com.alibaba.tinker.service.impl.DefaultHelloByteService"/> 
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloByteService"/>
+		<property name="target" value="helloByteService"/>
 		<property name="version" value="1.0.0.dev"/>
 		<property name="timeout" value="3000"/> 
 		<property name="threadPoolCoreSize" value="5"/>
 		<property name="threadPoolMaxiumSize" value="10"/>
+		<property name="serializableType" value="HESSIAN4"/>
 	</bean> 
 	
-	<bean service="com.alibaba.tinker.service.HelloByteBoxingService">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloByteBoxingService"/>
+	
+	<bean id="helloByteBoxingService" class="com.alibaba.tinker.service.impl.DefaultHelloByteBoxingService"/> 
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" service="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloByteBoxingService"/>
+		<property name="target" value="helloByteBoxingService"/>
 		<property name="version" value="1.0.0.dev"/>
 		<property name="timeout" value="3000"/> 
 		<property name="threadPoolCoreSize" value="5"/>
 		<property name="threadPoolMaxiumSize" value="10"/>
+		<property name="serializableType" value="HESSIAN4"/>
+	</bean> 
+	 
+	
+	<bean id="helloBooleanBoxingService" class="com.alibaba.tinker.service.impl.DefaultHelloBooleanBoxingService"/> 
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloBooleanBoxingService"/>
+		<property name="target" value="helloBooleanBoxingService"/>
+		<property name="version" value="1.0.0.dev"/>
+		<property name="timeout" value="3000"/> 
+		<property name="threadPoolCoreSize" value="5"/>
+		<property name="threadPoolMaxiumSize" value="10"/>
+		<property name="serializableType" value="HESSIAN4"/>
 	</bean> 
 	
-	<bean service="com.alibaba.tinker.service.HelloByteBoxingService">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloBooleanService"/>
+	
+	<bean id="helloCharService" class="com.alibaba.tinker.service.impl.DefaultHelloCharService"/> 
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloCharService"/>
+		<property name="target" value="helloCharService"/>
 		<property name="version" value="1.0.0.dev"/>
 		<property name="timeout" value="3000"/> 
 		<property name="threadPoolCoreSize" value="5"/>
 		<property name="threadPoolMaxiumSize" value="10"/>
+		<property name="serializableType" value="HESSIAN4"/>
 	</bean> 
 	
-	<bean service="com.alibaba.tinker.service.HelloBooleanBoxingService">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloBooleanBoxingService"/>
+	<bean id="helloCharacterService" class="com.alibaba.tinker.service.impl.DefaultHelloCharacterService"/>
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloCharacterService"/>
+		<property name="target" value="helloCharacterService"/>
 		<property name="version" value="1.0.0.dev"/>
 		<property name="timeout" value="3000"/> 
 		<property name="threadPoolCoreSize" value="5"/>
 		<property name="threadPoolMaxiumSize" value="10"/>
+		<property name="serializableType" value="HESSIAN4"/>
 	</bean> 
 	
-	<bean service="com.alibaba.tinker.service.HelloCharService">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloCharService"/>
+	
+	<bean id="helloLongBoxingService" class="com.alibaba.tinker.service.impl.DefaultHelloLongBoxingService"/>
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloLongBoxingService"/>
+		<property name="target" value="helloLongBoxingService"/>
 		<property name="version" value="1.0.0.dev"/>
 		<property name="timeout" value="3000"/> 
 		<property name="threadPoolCoreSize" value="5"/>
 		<property name="threadPoolMaxiumSize" value="10"/>
+		<property name="serializableType" value="HESSIAN4"/>
 	</bean> 
 	
-	<bean service="com.alibaba.tinker.service.HelloCharacterService">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloCharacterService"/>
+	
+	<bean id="helloLongService" class="com.alibaba.tinker.service.impl.DefaultHelloLongService"/>
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloLongService"/>
+		<property name="target" value="helloLongService"/>
 		<property name="version" value="1.0.0.dev"/>
 		<property name="timeout" value="3000"/> 
 		<property name="threadPoolCoreSize" value="5"/>
 		<property name="threadPoolMaxiumSize" value="10"/>
+		<property name="serializableType" value="HESSIAN4"/>
 	</bean> 
 	
-	<bean service="com.alibaba.tinker.service.HelloLongBoxingService">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloLongBoxingService"/>
+	
+	<bean id="helloObjectService" class="com.alibaba.tinker.service.impl.DefaultHelloObjectService"/>
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloObjectService"/>
+		<property name="target" value="helloObjectService"/>
 		<property name="version" value="1.0.0.dev"/>
 		<property name="timeout" value="3000"/> 
 		<property name="threadPoolCoreSize" value="5"/>
 		<property name="threadPoolMaxiumSize" value="10"/>
+		<property name="serializableType" value="HESSIAN4"/>
 	</bean> 
 	
-	<bean service="com.alibaba.tinker.service.HelloLongService">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloLongService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
 	
-	<bean service="com.alibaba.tinker.service.HelloObjectService">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloObjectService"/>
+	<bean id="helloMultiArgumentService" class="com.alibaba.tinker.service.impl.DefaultHelloMultiArgumentService"/>
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+		<property name="serviceName" value="com.alibaba.tinker.service.HelloMultiArgumentService"/>
+		<property name="target" value="helloMultiArgumentService"/>
 		<property name="version" value="1.0.0.dev"/>
 		<property name="timeout" value="3000"/> 
 		<property name="threadPoolCoreSize" value="5"/>
 		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
-	
-	<bean service="com.alibaba.tinker.service.HelloMultiArgumentService">
-		<property name="target" value="com.alibaba.tinker.service.impl.DefaultHelloMultiArgumentService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
-	
-	<!-- return invoke -->
-	<bean service="com.alibaba.tinker.service.response.HelloStringReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloStringReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
-	
-	<bean service="com.alibaba.tinker.service.response.HelloShortReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloShortReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean>
-	
-	<bean service="com.alibaba.tinker.service.response.HelloShortBoxingReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloShortBoxingReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean>
-	
-	<bean service="com.alibaba.tinker.service.response.HelloCharReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloCharReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
-	
-	<bean service="com.alibaba.tinker.service.response.HelloCharacterReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloCharacterReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
-	
-	<bean service="com.alibaba.tinker.service.response.HelloByteReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloByteReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
-	
-	<bean service="com.alibaba.tinker.service.response.HelloByteBoxingReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloByteBoxingReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
-	
-	<bean service="com.alibaba.tinker.service.response.HelloIntReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloIntReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
-	
-	<bean service="com.alibaba.tinker.service.response.HelloIntegerReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloIntegerReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
-	
-	<bean service="com.alibaba.tinker.service.response.HelloBooleanReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloBooleanReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
-	
-	<bean service="com.alibaba.tinker.service.response.HelloBooleanBoxingReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloBooleanBoxingReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
-	
-	<bean service="com.alibaba.tinker.service.response.HelloLongReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloLongReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
-	
-	<bean service="com.alibaba.tinker.service.response.HelloLongBoxingReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloLongBoxingReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
-	
-	<bean service="com.alibaba.tinker.service.response.HelloObjectReturnService">
-		<property name="target" value="com.alibaba.tinker.service.response.impl.DefaultHelloObjectReturnService"/>
-		<property name="version" value="1.0.0.dev"/>
-		<property name="timeout" value="3000"/> 
-		<property name="threadPoolCoreSize" value="5"/>
-		<property name="threadPoolMaxiumSize" value="10"/>
-	</bean> 
+		<property name="serializableType" value="HESSIAN4"/>
+	</bean>  
 </beans> 
 

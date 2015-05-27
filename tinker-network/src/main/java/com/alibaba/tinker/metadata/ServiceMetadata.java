@@ -7,5 +7,63 @@ package com.alibaba.tinker.metadata;
  *
  */
 public class ServiceMetadata {
+	private String serviceName;
 
+	private Object target;
+
+	private String version;
+
+	private int timeout;
+
+	private int threadPoolCoreSize;
+
+	private int threadPoolMaxiumSize;
+
+	public String getServiceName() {
+		return serviceName;
+	}
+
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+
+	public Object getTarget() {
+		return target;
+	}
+
+	public void setTarget(Object target) {
+		this.target = target;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public int getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
+
+	public int getThreadPoolCoreSize() {
+		return threadPoolCoreSize;
+	}
+
+	public void setThreadPoolCoreSize(int threadPoolCoreSize) {
+		this.threadPoolCoreSize = threadPoolCoreSize;
+	}
+
+	public int getThreadPoolMaxiumSize() {
+		return threadPoolMaxiumSize;
+	}
+
+	public void setThreadPoolMaxiumSize(int threadPoolMaxiumSize) {
+		this.threadPoolMaxiumSize = threadPoolMaxiumSize;
+	} 
 }

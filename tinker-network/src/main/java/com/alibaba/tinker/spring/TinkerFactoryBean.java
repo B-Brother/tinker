@@ -1,5 +1,5 @@
-package com.alibaba.tinker.consumer;
- 
+package com.alibaba.tinker.spring;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -13,45 +13,107 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
-import java.lang.reflect.Proxy; 
+import java.lang.reflect.Proxy;
 import java.util.List;
+
+import org.springframework.beans.factory.FactoryBean;
 
 import com.alibaba.tinker.cache.ChannelCache;
 import com.alibaba.tinker.cache.ProviderAddressCache;
 import com.alibaba.tinker.cache.ProviderConnectSuccessCache;
-import com.alibaba.tinker.cache.RegisterSuccessCache; 
+import com.alibaba.tinker.cache.RegisterSuccessCache;
 import com.alibaba.tinker.ex.TinkerConnectException;
+import com.alibaba.tinker.ex.TinkerInitException;
 import com.alibaba.tinker.future.ProviderConnectSuccessFuture;
-import com.alibaba.tinker.future.RegisterSuccessFuture; 
+import com.alibaba.tinker.future.RegisterSuccessFuture;
 import com.alibaba.tinker.handler.ConsumerHandler;
-import com.alibaba.tinker.handler.RegisterCenterHandler; 
+import com.alibaba.tinker.handler.RegisterCenterHandler;
+import com.alibaba.tinker.metadata.ServiceMetadata;
 import com.alibaba.tinker.util.Host;
- 
-public final class Consumer {  
-     
-    private String serviceName;
-    
-    // 被代理的远程对象
-    private Object proxy;
- 
-	public String getServiceName() {
-		return serviceName;
+
+@SuppressWarnings("rawtypes")
+public class TinkerFactoryBean implements FactoryBean {
+
+	private String serviceName;
+
+	private Object target;
+
+	private String version;
+
+	private int timeout;
+
+	private int threadPoolCoreSize;
+
+	private int threadPoolMaxiumSize;
+
+	private String serializableType;
+	
+	@Override
+	public Object getObject() throws Exception {
+		// 首先做一些基本的判断。
+		Class interfaceClazz = Class.forName(serviceName);
+		if(interfaceClazz == null){
+			throw new TinkerInitException("接口类不存在，serviceName=" + serviceName);
+		}
+		
+		if(!interfaceClazz.isInterface()){
+			throw new TinkerInitException("提供的接口类非标准java接口, serviceName=" + serviceName);
+		}
+		 
+		if(!isInterface(target.getClass(), interfaceClazz.getName())){
+			throw new TinkerInitException("提供的实现类并非是提供服务的实现类，serviceName=" + serviceName);
+		}  
+		
+		// 做初始化连接操作
+		init();
+		
+		ServiceMetadata metadata = new ServiceMetadata();
+		metadata.setServiceName(serviceName);
+		metadata.setVersion(version);
+		metadata.setTarget(metadata);
+		metadata.setThreadPoolMaxiumSize(threadPoolMaxiumSize);
+		metadata.setThreadPoolCoreSize(threadPoolCoreSize); 
+		  
+    	// 生成代理对象 
+		Object proxyObject = null;
+		try {
+			Class clazz = Class.forName(serviceName);
+			
+			Class[] interfaceArr = new Class[1];
+			interfaceArr[0] = clazz;
+			 
+			proxyObject = Proxy.newProxyInstance(
+	                this.getClass().getClassLoader(),  
+	                interfaceArr,   
+	                new TinkerProviderProxy(metadata)  
+	                );
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("服务" + serviceName + "初始化完成。");
+		return proxyObject;
 	}
 
-	public void setServiceName(String serviceName) {
-		this.serviceName = serviceName;
-	} 
+	@Override
+	public Class getObjectType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
+	@Override
+	public boolean isSingleton() {
+		return true;
+	}
+	
 	/**
 	 * init初始化需要做的事情如下:
-	 * 
-	 * 1. 生成代理对象。
-	 * 2. 和注册中心(RC)建立起连接
-	 * 3. 从注册中心获取当前接口有哪些对应的ipAddress，和这些ipAddress建立直连
+	 *  
+	 * 1. 和注册中心(RC)建立起连接
+	 * 2. 从注册中心获取当前接口有哪些对应的ipAddress，和这些ipAddress建立直连
 	 */ 
-	public void init(){
-		buildProxyObject();
-		
+	public void init(){ 
 		buildConnection2RegisterCenter(serviceName);
 		
 		boolean isRcConnectReady = RegisterSuccessCache.getInstance().get(serviceName).get();
@@ -61,39 +123,9 @@ public final class Consumer {
     		throw new TinkerConnectException("客户端:连接注册中心异常，serviceName=" + serviceName);
     	}
     }
-    
-    public Object getObject(){
-    	return proxy;
-    }  
-    
-    // ---- private
-    
-    @SuppressWarnings("rawtypes")
-	private void buildProxyObject(){
-    	// 生成代理对象
-    	Class clazz;
-		try {
-			clazz = Class.forName(serviceName.substring(0, serviceName.lastIndexOf(":")));
-			
-			Class[] interfaceArr = new Class[1];
-			interfaceArr[0] = clazz;
-			 
-			Object proxyObj = Proxy.newProxyInstance(
-	                this.getClass().getClassLoader(),  
-	                interfaceArr,   
-	                new TinkerInvokeHandler(this)    
-	                );
-			
-			proxy = proxyObj;
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  
-    }
-    
+
+	// ----------------------private-------------------------
+	  
     /**
      *  和注册中心(RC)建立连接
      *  
@@ -191,13 +223,76 @@ public final class Consumer {
 			}
 		}).start();
     } 
+	
+	public boolean isInterface(Class c, String szInterface) {
+		Class[] face = c.getInterfaces();
+		for (int i = 0, j = face.length; i < j; i++) {
+			if (face[i].getName().equals(szInterface)) {
+				return true;
+			} else {
+				Class[] face1 = face[i].getInterfaces();
+				for (int x = 0; x < face1.length; x++) {
+					if (face1[x].getName().equals(szInterface)) {
+						return true;
+					} else if (isInterface(face1[x], szInterface)) {
+						return true;
+					}
+				}
+			}
+		}
+		if (null != c.getSuperclass()) {
+			return isInterface(c.getSuperclass(), szInterface);
+		}
+		return false;
+	}
+
+	// ----------------------setter--------------------------
+
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+
+	public void setTarget(Object target) {
+		this.target = target;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
+
+	public void setThreadPoolCoreSize(int threadPoolCoreSize) {
+		this.threadPoolCoreSize = threadPoolCoreSize;
+	}
+
+	public void setThreadPoolMaxiumSize(int threadPoolMaxiumSize) {
+		this.threadPoolMaxiumSize = threadPoolMaxiumSize;
+	}
+
+	public String getServiceName() {
+		return serviceName;
+	}
+
+	public Object getTarget() {
+		return target;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public int getTimeout() {
+		return timeout;
+	}
+
+	public int getThreadPoolCoreSize() {
+		return threadPoolCoreSize;
+	}
+
+	public int getThreadPoolMaxiumSize() {
+		return threadPoolMaxiumSize;
+	}
 }
-
-
-
-
-
-
-
-
-

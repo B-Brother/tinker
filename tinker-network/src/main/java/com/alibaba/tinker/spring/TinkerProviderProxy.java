@@ -1,44 +1,37 @@
-package com.alibaba.tinker.consumer;
- 
+package com.alibaba.tinker.spring;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel; 
+import io.netty.channel.Channel;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;  
-import java.util.ArrayList;  
-import java.util.List; 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.alibaba.tinker.cache.ChannelCache; 
+import com.alibaba.tinker.cache.ChannelCache;
 import com.alibaba.tinker.cache.ProviderConnectSuccessCache;
 import com.alibaba.tinker.constants.ProtocolConstants;
-import com.alibaba.tinker.ex.TinkerConnectException; 
+import com.alibaba.tinker.ex.TinkerConnectException;
 import com.alibaba.tinker.future.ProviderConnectSuccessFuture;
-import com.alibaba.tinker.generator.UUIDGenerator; 
-import com.alibaba.tinker.holder.ResponseHolder; 
+import com.alibaba.tinker.generator.UUIDGenerator;
+import com.alibaba.tinker.holder.ResponseHolder;
+import com.alibaba.tinker.metadata.ServiceMetadata;
 import com.alibaba.tinker.protocol.HessianHelper;
 import com.alibaba.tinker.protocol.request.TinkerRequest;
 import com.alibaba.tinker.protocol.response.TinkerResponse;
-import com.alibaba.tinker.util.ArrayUtil; 
+import com.alibaba.tinker.util.ArrayUtil;
 import com.alibaba.tinker.util.NumberUtil;
 
-/**
- * 所有客户端的调用入口。客户端启动后所有的方法都经过这里分发。
- * 
- * @author yingchao.zyc
- *
- */
-public class TinkerInvokeHandler implements InvocationHandler {
+public class TinkerProviderProxy implements InvocationHandler{
 	
-	private Consumer consumer;
- 
-	public TinkerInvokeHandler(Consumer consumer) { 
-		this.consumer = consumer;
+	private ServiceMetadata metadata;
+	
+	public TinkerProviderProxy(ServiceMetadata metadata){
+		this.metadata = metadata;
 	}
 
-	/**
-	 * 通过反射机制动态执行真实角色的每一个方法
-	 */ 
+	@Override
 	public Object invoke(Object proxy, Method method, Object[] args)
 			throws Throwable {
 		try { 
@@ -50,14 +43,14 @@ public class TinkerInvokeHandler implements InvocationHandler {
 			request.setParamValues(args);
 			request.setRequestId(requestId);
 			request.setSerizaliableType("HESSIAN4");
-			request.setServiceName(consumer.getServiceName());
+			request.setServiceName(metadata.getServiceName());
 			
 			return invoke(request);  
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		} 
-	}
+	} 
 	
 	public Object invoke(TinkerRequest request){ 
     	String serviceName = request.getServiceName(); 
@@ -204,10 +197,3 @@ public class TinkerInvokeHandler implements InvocationHandler {
     	return Unpooled.copiedBuffer(invokeByte);
     } 
 }
-
-
-
-
-
-
-
