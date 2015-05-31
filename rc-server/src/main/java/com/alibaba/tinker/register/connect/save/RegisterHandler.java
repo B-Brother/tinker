@@ -55,7 +55,7 @@ public class RegisterHandler extends SimpleChannelInboundHandler<String> {
     
     public void doConsumer(ChannelHandlerContext ctx, JSONObject json){  
     	String serviceName = json.getString("serviceName");
-    	List<RegisterInterfaceDo> rcList = registerCenterMapper.getInterfaceListByFullName(serviceName);
+    	List<RegisterInterfaceDo> rcList = registerCenterMapper.getInterfaceListByInterfaceName(serviceName);
     	
     	List<String> addressList = new ArrayList<String>();
     	if(rcList != null && rcList.size() != 0){

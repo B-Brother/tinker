@@ -1,6 +1,7 @@
 package com.alibaba.tinker.spring;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -8,27 +9,24 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 
-import java.lang.reflect.Proxy;
-import java.util.List;
+import java.lang.reflect.Proxy; 
 
 import org.springframework.beans.factory.FactoryBean;
 
-import com.alibaba.tinker.cache.ChannelCache;
-import com.alibaba.tinker.cache.ProviderAddressCache;
-import com.alibaba.tinker.cache.ProviderConnectSuccessCache;
-import com.alibaba.tinker.cache.RegisterSuccessCache;
-import com.alibaba.tinker.ex.TinkerConnectException;
-import com.alibaba.tinker.ex.TinkerInitException;
-import com.alibaba.tinker.future.ProviderConnectSuccessFuture;
-import com.alibaba.tinker.future.RegisterSuccessFuture;
-import com.alibaba.tinker.handler.ConsumerHandler;
-import com.alibaba.tinker.handler.RegisterCenterHandler;
+import com.alibaba.tinker.cache.RegisterSuccessCache; 
+import com.alibaba.tinker.ex.TinkerInitException; 
+import com.alibaba.tinker.future.RegisterSuccessFuture;  
 import com.alibaba.tinker.metadata.ServiceMetadata;
+import com.alibaba.tinker.publisher.PublisherHandler;
+import com.alibaba.tinker.publisher.RpcHandler;
 import com.alibaba.tinker.util.Host;
 
 @SuppressWarnings("rawtypes")
@@ -48,6 +46,9 @@ public class TinkerFactoryBean implements FactoryBean {
 
 	private String serializableType;
 	
+	// 这个metadata对象就是包含了上边的所有属性的对象, 感觉从设计上，不是太合理 TODO
+	private ServiceMetadata metadata;
+	
 	@Override
 	public Object getObject() throws Exception {
 		// 首先做一些基本的判断。
@@ -62,18 +63,8 @@ public class TinkerFactoryBean implements FactoryBean {
 		 
 		if(!isInterface(target.getClass(), interfaceClazz.getName())){
 			throw new TinkerInitException("提供的实现类并非是提供服务的实现类，serviceName=" + serviceName);
-		}  
+		}    
 		
-		// 做初始化连接操作
-		init();
-		
-		ServiceMetadata metadata = new ServiceMetadata();
-		metadata.setServiceName(serviceName);
-		metadata.setVersion(version);
-		metadata.setTarget(metadata);
-		metadata.setThreadPoolMaxiumSize(threadPoolMaxiumSize);
-		metadata.setThreadPoolCoreSize(threadPoolCoreSize); 
-		  
     	// 生成代理对象 
 		Object proxyObject = null;
 		try {
@@ -91,9 +82,34 @@ public class TinkerFactoryBean implements FactoryBean {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+		 
+		return proxyObject;
+	}
+	
+	/**
+	 * 服务端启动需要做两件事情。
+	 * 
+	 * 1. 和注册中心建立连接。告诉RC，我这边的ip是多少，提供了什么样的服务
+	 * 2. 本地打开12200端口，可以让消费者来调用到
+	 * 
+	 */
+	public void init(){
+		// step 1
+		ServiceMetadata metadata = new ServiceMetadata();
+		metadata.setServiceName(serviceName);
+		metadata.setVersion(version);
+		metadata.setTarget(metadata);
+		metadata.setThreadPoolMaxiumSize(threadPoolMaxiumSize);
+		metadata.setThreadPoolCoreSize(threadPoolCoreSize); 
+		
+		this.metadata = metadata;
+		
+		buildConnection2RegisterCenter(metadata);
+		
+		// step 2
+		startRpc();
 		
 		System.out.println("服务" + serviceName + "初始化完成。");
-		return proxyObject;
 	}
 
 	@Override
@@ -105,37 +121,62 @@ public class TinkerFactoryBean implements FactoryBean {
 	@Override
 	public boolean isSingleton() {
 		return true;
-	}
-	
-	/**
-	 * init初始化需要做的事情如下:
-	 *  
-	 * 1. 和注册中心(RC)建立起连接
-	 * 2. 从注册中心获取当前接口有哪些对应的ipAddress，和这些ipAddress建立直连
-	 */ 
-	public void init(){ 
-		buildConnection2RegisterCenter(serviceName);
-		
-		boolean isRcConnectReady = RegisterSuccessCache.getInstance().get(serviceName).get();
-    	if(isRcConnectReady){ 
-    		buildConnection2Provider(serviceName);    		
-    	}else{
-    		throw new TinkerConnectException("客户端:连接注册中心异常，serviceName=" + serviceName);
-    	}
-    }
+	} 
 
 	// ----------------------private-------------------------
-	  
+	
+	/**
+	 * 
+	 */
+	public void startRpc(){  
+        new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+
+		        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+		        EventLoopGroup workerGroup = new NioEventLoopGroup();
+		        try {
+		            ServerBootstrap b = new ServerBootstrap();
+		            b.group(bossGroup, workerGroup)
+		             .channel(NioServerSocketChannel.class)
+		             .option(ChannelOption.SO_BACKLOG, 100)
+		             .handler(new LoggingHandler(LogLevel.INFO))
+		             .childHandler(new ChannelInitializer<SocketChannel>() {
+		                 @Override
+		                 public void initChannel(SocketChannel ch) throws Exception {
+		                     ChannelPipeline p = ch.pipeline(); 
+		                     
+		                     p.addLast(new RpcHandler());
+		                 }
+		             });
+
+		            // Start the server.
+		            ChannelFuture f = b.bind(12200).sync();
+
+		            // Wait until the server socket is closed.
+		            f.channel().closeFuture().sync();
+		        } catch (Exception e) { 
+					e.printStackTrace();
+				} finally {
+		            // Shut down all event loops to terminate all threads.
+		            bossGroup.shutdownGracefully();
+		            workerGroup.shutdownGracefully();
+		        }
+			}
+		}).start();
+    } 
+	
     /**
      *  和注册中心(RC)建立连接
      *  
      *  通道建立时: 发出请求服务地址提供列表消息
-     *  RC回应: 地址列表信息，回写到ServiceAddressCache
+     *  RC回应: 地址列表信息，回写到ServiceAddressCache 
      */ 
-	private void buildConnection2RegisterCenter(final String serviceName){  
+	private void buildConnection2RegisterCenter(final ServiceMetadata metadata){  
 		RegisterSuccessFuture future = new RegisterSuccessFuture();
 		
-		RegisterSuccessCache.getInstance().put(serviceName, future);
+		RegisterSuccessCache.getInstance().put(metadata.getServiceName(), future);
 		
 		new Thread(new Runnable() {
 			
@@ -155,7 +196,7 @@ public class TinkerFactoryBean implements FactoryBean {
 		                     p.addLast(
 		                             new ObjectEncoder(),
 		                             new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
-		                    		 new RegisterCenterHandler(serviceName));
+		                    		 new PublisherHandler(metadata));
 		                 }
 	                });
 	  
@@ -173,57 +214,8 @@ public class TinkerFactoryBean implements FactoryBean {
 		        }  
 			}
 		}).start();
-    }
-	
-	/**
-     *  和服务提供者建立连接
-     */ 
-	private void buildConnection2Provider(final String serviceName){  
-		ProviderConnectSuccessFuture future = new ProviderConnectSuccessFuture();
-		
-		ProviderConnectSuccessCache.getInstance().put(serviceName, future); 
-		 
-    	final List<String> providerIPList = ProviderAddressCache.getInstance().get(serviceName).get();
-		
-    	new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-		    	   
-				for (String providerIp : providerIPList) {
-		    		EventLoopGroup group = new NioEventLoopGroup();
-		            try {
-		            	Bootstrap b = new Bootstrap();
-		                b.group(group)
-		                 .channel(NioSocketChannel.class)
-		                 .option(ChannelOption.TCP_NODELAY, true)
-		                 .handler(new ChannelInitializer<SocketChannel>() {
-		                     @Override
-		                     public void initChannel(SocketChannel ch) throws Exception {
-		                         ChannelPipeline p = ch.pipeline(); 
-		                         
-		                         p.addLast(new ConsumerHandler());
-		                     }
-		                 });
-
-		                
-		                // 去连接每一个服务提供者的12200端口
-		                ChannelFuture f = b.connect(Host.RC_HOST, 12200).sync();  
-		                 
-		                // 客户端把每个已经连接的Channel都缓存起来，
-		                ChannelCache.getInstance().put(serviceName, f.channel());
-		                 
-		            } catch (InterruptedException e) { 
-		    			e.printStackTrace(); 
-					}  
-				}
-				
-				ProviderConnectSuccessFuture connectFuture = ProviderConnectSuccessCache.getInstance().get(serviceName);
-                connectFuture.putStatus(true);
-			}
-		}).start();
     } 
-	
+	 
 	public boolean isInterface(Class c, String szInterface) {
 		Class[] face = c.getInterfaces();
 		for (int i = 0, j = face.length; i < j; i++) {
@@ -274,6 +266,14 @@ public class TinkerFactoryBean implements FactoryBean {
 
 	public String getServiceName() {
 		return serviceName;
+	}
+
+	public String getSerializableType() {
+		return serializableType;
+	}
+
+	public void setSerializableType(String serializableType) {
+		this.serializableType = serializableType;
 	}
 
 	public Object getTarget() {

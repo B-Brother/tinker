@@ -1,6 +1,7 @@
 package com.alibaba.tinker.publisher;
  
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.tinker.metadata.ServiceMetadata;
 import com.alibaba.tinker.util.IpAddressUtil;
 
 import io.netty.channel.ChannelHandlerContext; 
@@ -8,16 +9,17 @@ import io.netty.channel.SimpleChannelInboundHandler;
  
 public class PublisherHandler extends SimpleChannelInboundHandler<String> { 
 	
-	private String serviceName;
+	private ServiceMetadata metadata;
     
-    public PublisherHandler(String serviceName) { 
-		this.serviceName = serviceName;
+    public PublisherHandler(ServiceMetadata metadata) { 
+		this.metadata = metadata;
 	}
 	
     @Override
     public void channelActive(ChannelHandlerContext ctx) { 
     	JSONObject json = new JSONObject();
-    	json.put("serviceName", serviceName);
+    	json.put("serviceName", metadata.getServiceName());
+    	json.put("version", metadata.getVersion());
     	json.put("address", IpAddressUtil.getHostIp());
     	json.put("connectPort", 12200);
     	json.put("timeout", 3000);
@@ -26,7 +28,7 @@ public class PublisherHandler extends SimpleChannelInboundHandler<String> {
     	json.put("type", "publish");
     	 
         ctx.writeAndFlush(json.toJSONString()); 
-        System.out.println("服务提供者:请求服务提供地址信息完成, json=" + json.toJSONString()); 
+        System.out.println("服务提供者:写入注册中心信息。 json=" + json.toJSONString()); 
     }
 
     @Override

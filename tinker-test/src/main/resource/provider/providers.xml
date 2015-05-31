@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd"
+	default-autowire="byName">
+	
 	<bean id="helloWorldService" class="com.alibaba.tinker.service.impl.DefaultHelloWorldService"/>
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloWorldService"/>
 		<property name="target" value="helloWorldService"/>
 		<property name="version" value="1.0.0.dev"/>					
@@ -13,7 +27,7 @@
 	 
 	 
 	<bean id="helloWorld2Service" class="com.alibaba.tinker.service.impl.DefaultHelloWorld2Service"/> 
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloWorld2Service"/>
 		<property name="target" value="helloWorld2Service"/>
 		<property name="version" value="1.0.0.dev"/>
@@ -25,7 +39,7 @@
 	
 	
 	<bean id="helloWorld3Service" class="com.alibaba.tinker.service.impl.DefaultHelloWorld3Service"/> 
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloWorld3Service"/>
 		<property name="target" value="helloWorld3Service"/>
 		<property name="version" value="1.0.0.dev"/>
@@ -37,7 +51,7 @@
 	
 	
 	<bean id="helloShortService" class="com.alibaba.tinker.service.impl.DefaultHelloShortService"/> 
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloShortService"/>
 		<property name="target" value="helloShortService"/>
 		<property name="version" value="1.0.0.dev"/>
@@ -49,7 +63,7 @@
 	
 	
 	<bean id="helloShortBoxingService" class="com.alibaba.tinker.service.impl.DefaultHelloShortBoxingService"/> 
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloShortBoxingService"/>
 		<property name="target" value="helloShortBoxingService"/>
 		<property name="version" value="1.0.0.dev"/>
@@ -61,7 +75,7 @@
 	
 	
 	<bean id="helloByteService" class="com.alibaba.tinker.service.impl.DefaultHelloByteService"/> 
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloByteService"/>
 		<property name="target" value="helloByteService"/>
 		<property name="version" value="1.0.0.dev"/>
@@ -73,7 +87,7 @@
 	
 	
 	<bean id="helloByteBoxingService" class="com.alibaba.tinker.service.impl.DefaultHelloByteBoxingService"/> 
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" service="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloByteBoxingService"/>
 		<property name="target" value="helloByteBoxingService"/>
 		<property name="version" value="1.0.0.dev"/>
@@ -85,7 +99,7 @@
 	 
 	
 	<bean id="helloBooleanBoxingService" class="com.alibaba.tinker.service.impl.DefaultHelloBooleanBoxingService"/> 
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloBooleanBoxingService"/>
 		<property name="target" value="helloBooleanBoxingService"/>
 		<property name="version" value="1.0.0.dev"/>
@@ -97,7 +111,7 @@
 	
 	
 	<bean id="helloCharService" class="com.alibaba.tinker.service.impl.DefaultHelloCharService"/> 
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloCharService"/>
 		<property name="target" value="helloCharService"/>
 		<property name="version" value="1.0.0.dev"/>
@@ -108,7 +122,7 @@
 	</bean> 
 	
 	<bean id="helloCharacterService" class="com.alibaba.tinker.service.impl.DefaultHelloCharacterService"/>
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloCharacterService"/>
 		<property name="target" value="helloCharacterService"/>
 		<property name="version" value="1.0.0.dev"/>
@@ -120,7 +134,7 @@
 	
 	
 	<bean id="helloLongBoxingService" class="com.alibaba.tinker.service.impl.DefaultHelloLongBoxingService"/>
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloLongBoxingService"/>
 		<property name="target" value="helloLongBoxingService"/>
 		<property name="version" value="1.0.0.dev"/>
@@ -132,7 +146,7 @@
 	
 	
 	<bean id="helloLongService" class="com.alibaba.tinker.service.impl.DefaultHelloLongService"/>
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloLongService"/>
 		<property name="target" value="helloLongService"/>
 		<property name="version" value="1.0.0.dev"/>
@@ -144,7 +158,7 @@
 	
 	
 	<bean id="helloObjectService" class="com.alibaba.tinker.service.impl.DefaultHelloObjectService"/>
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloObjectService"/>
 		<property name="target" value="helloObjectService"/>
 		<property name="version" value="1.0.0.dev"/>
@@ -156,7 +170,7 @@
 	
 	
 	<bean id="helloMultiArgumentService" class="com.alibaba.tinker.service.impl.DefaultHelloMultiArgumentService"/>
-	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init="init">
+	<bean class="com.alibaba.tinker.spring.TinkerFactoryBean" init-method="init">
 		<property name="serviceName" value="com.alibaba.tinker.service.HelloMultiArgumentService"/>
 		<property name="target" value="helloMultiArgumentService"/>
 		<property name="version" value="1.0.0.dev"/>

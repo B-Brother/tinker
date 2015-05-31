@@ -24,11 +24,9 @@ public class RegisterProtocol {
 	// 调用连接端口
 	private String connectPort;
 	
-	public RegisterProtocol(JSONObject json){  
-    	String serviceName = json.getString("serviceName");
-    	 
-		interfaceName = serviceName.substring(0, serviceName.indexOf(":"));
-		version = serviceName.substring(serviceName.indexOf(":") + 1);
+	public RegisterProtocol(JSONObject json){   
+		interfaceName = json.getString("serviceName");
+		version = json.getString("version");
 		targetAddress = json.getString("address");
 		connectPort = json.getString("connectPort");
 		timeout = json.getLong("timeout");

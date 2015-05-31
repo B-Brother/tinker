@@ -27,7 +27,10 @@ b_threadpool - 2015.05.24
 feature: 现在服务提供者在创建时会维护一个线程池。调用请求来的时候也是线程处理。  
 feature: 优化了方法调用的执行时间。同时consumer的初始化这部分代码做了重构。  
 
-
+b_service_config 
+-----------------------
+feature: 现在tinker和spring做了集成。所有初始化注册的bean都放在xml配置中。同时支持了几种初始化参数。
+		 
 
 
 

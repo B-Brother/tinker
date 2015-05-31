@@ -19,8 +19,18 @@ public class ServiceMetadata {
 
 	private int threadPoolMaxiumSize;
 
+	private String serializableType;
+	
 	public String getServiceName() {
 		return serviceName;
+	}
+
+	public String getSerializableType() {
+		return serializableType;
+	}
+
+	public void setSerializableType(String serializableType) {
+		this.serializableType = serializableType;
 	}
 
 	public void setServiceName(String serviceName) {
