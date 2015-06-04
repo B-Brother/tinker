@@ -27,3 +27,5 @@
 	 	
    A. 感谢伟大的stackOverflow。 http://stackoverflow.com/questions/17362839/netty4-unexpected-exception-in-the-selector-loop。
    group.shutdownGracefully(); 不要在消息还没发送完成之前调用。 
+   
+9. 如何完整的模拟出来tinker在实际应用中的使用? 我觉得可以参考dubbo的方法。test工程可以理解为实际应用的工程(maven依赖中，test在最上层)。
