@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   
+    xmlns:tinker="http://www.alibaba-inc.com/schema/tinker"  
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.5.xsd  
+    http://www.alibaba-inc.com/schema/tinker 
+    http://www.alibaba-inc.com/schema/tinker.xsd">  
+   
+   <tinker:people id="people" name="beckham" age="23"/>
+</beans>  

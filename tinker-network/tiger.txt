@@ -29,3 +29,14 @@
    group.shutdownGracefully(); 不要在消息还没发送完成之前调用。 
    
 9. 如何完整的模拟出来tinker在实际应用中的使用? 我觉得可以参考dubbo的方法。test工程可以理解为实际应用的工程(maven依赖中，test在最上层)。
+
+10. xsd的校验会报错:src-resolve: Cannot resolve the name 'beans:identifiedType' to 
+ 	a(n) 'type definition' component. 但是万能的stackoverflow说这个报错不影响。
+
+11. Caused by: org.xml.sax.SAXParseException; systemId: http://www.alibaba-inc.com/schema/tinker.xsd; lineNumber: 1; columnNumber: 50; 
+	在 publicId 和 systemId 之间需要有空格。
+	
+ 	网上说是顺序。妈蛋我则例顺序对的也报错。
+ 	真正的原因是这样的:
+ 	我再spring.schemas中指定的xsd位置不存在(写错了)，然后找不到本地映射关系，所以就去访问这个真实的路径http://www.alibaba-inc.com/schema/tinker.xsd。
+ 	但是这个真实的路径实际上是不存在的，从response可以看到被Tengine给拦截了，返回的非xsd。所以判断出了问题。
