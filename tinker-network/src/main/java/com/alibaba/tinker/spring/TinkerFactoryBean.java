@@ -230,7 +230,7 @@ public class TinkerFactoryBean implements FactoryBean {
 						return true;
 					}
 				}
-			}
+			} 
 		}
 		if (null != c.getSuperclass()) {
 			return isInterface(c.getSuperclass(), szInterface);

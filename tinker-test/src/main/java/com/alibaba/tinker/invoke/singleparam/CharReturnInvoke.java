@@ -2,7 +2,7 @@ package com.alibaba.tinker.invoke.singleparam;
 
 import java.util.Date;
 
-import com.alibaba.tinker.consumer.Consumer;
+import com.alibaba.tinker.client.Client;
 import com.alibaba.tinker.publisher.Publisher; 
 import com.alibaba.tinker.service.response.HelloCharReturnService;
 
@@ -14,7 +14,7 @@ public class CharReturnInvoke {
 		publisher.forRpc();
 		 
 		// 启动Consumer
-		Consumer consumer = new Consumer();
+		Client consumer = new Client();
 		consumer.setServiceName("com.alibaba.tinker.service.response.HelloCharReturnService:1.0.0.dev"); 
 		consumer.init();
 		

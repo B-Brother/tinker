@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import com.alibaba.tinker.consumer.Consumer;
+import com.alibaba.tinker.client.Client;
 import com.alibaba.tinker.publisher.Publisher;  
 import com.alibaba.tinker.service.dto.TransferDTO;
 import com.alibaba.tinker.service.response.HelloObjectReturnService;
@@ -18,7 +18,7 @@ public class ObjectReturnInvoke {
 		publisher.forRpc();
 		 
 		// 启动Consumer
-		Consumer consumer = new Consumer();
+		Client consumer = new Client();
 		consumer.setServiceName("com.alibaba.tinker.service.response.HelloObjectReturnService:1.0.0.dev"); 
 		consumer.init();
 		

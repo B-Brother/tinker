@@ -12,6 +12,7 @@
 	<modules>
 		<module>tinker-common</module>
 		<module>tinker-network</module>
+        <module>tinker-parse</module>
 		<module>tinker-test</module> 
   </modules>
 
@@ -42,6 +43,11 @@
             <dependency>
 				<groupId>com.alibaba.rock</groupId>
 				<artifactId>tinker-register</artifactId>
+				<version>1.0-SNAPSHOT</version>
+			</dependency>
+            <dependency>
+				<groupId>com.alibaba.rock</groupId>
+				<artifactId>tinker-parse</artifactId>
 				<version>1.0-SNAPSHOT</version>
 			</dependency>
 

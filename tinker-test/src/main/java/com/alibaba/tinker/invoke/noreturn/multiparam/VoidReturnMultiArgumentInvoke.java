@@ -2,7 +2,7 @@ package com.alibaba.tinker.invoke.noreturn.multiparam;
 
 import java.util.Date;
 
-import com.alibaba.tinker.consumer.Consumer;
+import com.alibaba.tinker.client.Client;
 import com.alibaba.tinker.publisher.Publisher;
 import com.alibaba.tinker.service.HelloMultiArgumentService;
 import com.alibaba.tinker.service.dto.TransferDTO;
@@ -15,7 +15,7 @@ public class VoidReturnMultiArgumentInvoke {
 		publisher.forRpc();
 		 
 		// 启动Consumer
-		Consumer consumer = new Consumer();
+		Client consumer = new Client();
 		consumer.setServiceName("com.alibaba.tinker.service.HelloMultiArgumentService:1.0.0.dev"); 
 		consumer.init();
 		

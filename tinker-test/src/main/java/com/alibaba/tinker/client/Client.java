@@ -1,11 +1,17 @@
-package com.alibaba.tinker.consumer;
+package com.alibaba.tinker.client;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.alibaba.tinker.service.HelloWorldService;
 
-public class Consumer {
+/**
+ * 模拟client
+ * 
+ * @author beckham
+ *
+ */
+public class Client {
 	public static void main(String[] args) {
 		// 初始化spring bean容器。让每个FactoryBean去做自己的初始化init方法
 		ApplicationContext context = new ClassPathXmlApplicationContext("classpath:consumer/consumer.xml");
