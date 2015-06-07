@@ -2,13 +2,15 @@ package com.alibaba.tinker.parse.handler;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import com.alibaba.tinker.parse.entity.People;
+ 
 
 public class Test {
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		ApplicationContext ctx = new ClassPathXmlApplicationContext("beans.xml");  
-        People f = (People) ctx.getBean("people");  
-        System.out.println(f);  
+        Object value = ctx.getBean("beckham-app");   
+        Object d = ctx.getBean("default");   
+        Object demoService = ctx.getBean("java.util.Date");   
+        System.out.println("DONE.");
 	}
 }

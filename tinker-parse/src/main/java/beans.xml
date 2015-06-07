@@ -7,6 +7,22 @@
     http://www.springframework.org/schema/beans/spring-beans-2.5.xsd  
     http://www.alibaba-inc.com/schema/tinker 
     http://www.alibaba-inc.com/schema/tinker.xsd">  
-   
-   <tinker:people id="people" name="beckham" age="23"/>
-</beans>  
+     
+     
+    <!-- 原则上来说，application，protocol是公用的。只能出现一次。而service是提供出去的服务。可以有多个。 --> 
+    <!-- 提供方应用信息-->
+    <tinker:application name="beckham-app"  />
+  
+    <!-- 12200端口开启。默认协议(Hessian4) 这是默认值，具体到服务还是可以具体配置-->
+    <tinker:protocol name="default" port="12200" timeout="3000"
+    				threadPoolCoreSize="5" threadPoolMaxiumSize="10" serializableType="HESSIAN4"/>
+    
+    
+ 
+    <!-- 声明需要暴露的服务接口 -->
+    <tinker:service name="java.util.Date" version="1.0.0.daily" ref="demoService" />
+ 
+    <!-- 和本地bean一样实现服务 -->
+    <bean id="demoService" class="java.util.Date" />
+  
+</beans>   
