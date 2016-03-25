@@ -13,7 +13,7 @@
 		<module>tinker-common</module>
 		<module>tinker-network</module>
         <module>tinker-parse</module>
-		<module>tinker-test</module> 
+		<module>tinker-test</module>  
   </modules>
 
     <properties>

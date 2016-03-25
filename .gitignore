@@ -14,3 +14,9 @@
 # directory
 target
 .settings
+
+# idea
+*.ipr
+*.iws
+*.iml
+.idea

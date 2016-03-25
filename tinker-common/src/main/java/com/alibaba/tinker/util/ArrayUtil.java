@@ -1,5 +1,12 @@
 package com.alibaba.tinker.util;
 
+/**
+ * 数组的操作工具类。在对象序列化时候用到。
+ * 
+ * @author yingchao.zyc
+ *
+ * 2016年3月25日 下午2:24:07
+ */
 public class ArrayUtil {
 	public static byte[] concat(byte[] a, byte[] b) {  
 	   byte[] c= new byte[a.length+b.length];  

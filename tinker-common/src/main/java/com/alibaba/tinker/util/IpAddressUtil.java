@@ -16,6 +16,11 @@ public class IpAddressUtil {
 	
 	private static final String LOCALHOSTIP = "127.0.0.1";
 	
+	/**
+	 * 获取当前host的ip
+	 * 
+	 * @return
+	 */
 	@SuppressWarnings("rawtypes")
 	public static String getHostIp() {
 		Enumeration netInterfaces = null;

@@ -15,5 +15,8 @@
 	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd"
 	default-autowire="byName">
 
+    <!-- 容器启动 -->
+    <bean id="container" class="com.alibaba.tinker.rc.container.NettyServerBootstrap"/>
+
 	<import resource="datasource.xml"/>
 </beans> 
