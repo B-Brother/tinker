@@ -23,14 +23,14 @@
     </bean>
 
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-    	<property name="mapperLocations" value="classpath*:com/alibaba/tinker/register/sqlmap/*Mapper*.xml" /> 
+    	<property name="mapperLocations" value="classpath*:com/alibaba/tinker/rc/sqlmap/*Mapper*.xml" />
         <property name="dataSource" ref="dataSource" />
         <property name="typeAliasesPackage" value="com.alibaba.***.object" />
     </bean>
     
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="annotationClass" value="javax.annotation.Resource"></property>
-        <property name="basePackage" value="com.alibaba.tinker.register.mapper" />
+        <property name="basePackage" value="com.alibaba.tinker.rc.mapper" />
         <property name="sqlSessionFactory" ref="sqlSessionFactory" />
     </bean> 
  

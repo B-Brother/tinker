@@ -18,5 +18,13 @@
     <!-- 容器启动 -->
     <bean id="container" class="com.alibaba.tinker.rc.container.NettyServerBootstrap"/>
 
+    <!-- handler工厂 -->
+    <bean id="nettyHandlerFactory" class="com.alibaba.tinker.rc.container.NettyHandlerFactory"/>
+
+    <!-- 不同类型的请求handler -->
+    <bean id="requestDispatchHandler" class="com.alibaba.tinker.rc.handler.RequestDispatchHandler"/>
+    <bean id="publishHandler" class="com.alibaba.tinker.rc.handler.PublishHandler"/>
+    <bean id="consumeHandler" class="com.alibaba.tinker.rc.handler.ConsumeHandler"/>
+
 	<import resource="datasource.xml"/>
 </beans> 

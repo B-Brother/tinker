@@ -23,8 +23,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.tinker.register.mapper.RegisterInterfaceMapper;
-import com.alibaba.tinker.register.object.RegisterInterfaceDo;
+import com.alibaba.tinker.rc.mapper.ConfigMapper;
+import com.alibaba.tinker.rc.object.ConfigDo;
 import com.alibaba.tinker.register.protocol.RegisterProtocol;
  
 import io.netty.channel.ChannelHandlerContext; 
@@ -32,11 +32,11 @@ import io.netty.channel.SimpleChannelInboundHandler;
  
 public class RegisterHandler extends SimpleChannelInboundHandler<String> {
 
-	private RegisterInterfaceMapper registerCenterMapper;
+	private ConfigMapper registerCenterMapper;
 	
 	public RegisterHandler(){
     	ApplicationContext context = new ClassPathXmlApplicationContext("classpath:beans.xml");
-    	registerCenterMapper = (RegisterInterfaceMapper) context.getBean("registerInterfaceMapper");
+    	registerCenterMapper = (ConfigMapper) context.getBean("registerInterfaceMapper");
 	}
 	
     @Override
@@ -55,11 +55,11 @@ public class RegisterHandler extends SimpleChannelInboundHandler<String> {
     
     public void doConsumer(ChannelHandlerContext ctx, JSONObject json){  
     	String serviceName = json.getString("serviceName");
-    	List<RegisterInterfaceDo> rcList = registerCenterMapper.getInterfaceListByInterfaceName(serviceName);
+    	List<ConfigDo> rcList = registerCenterMapper.getInterfaceListByInterfaceName(serviceName);
     	
     	List<String> addressList = new ArrayList<String>();
     	if(rcList != null && rcList.size() != 0){
-    		for(RegisterInterfaceDo rc : rcList){
+    		for(ConfigDo rc : rcList){
     			if(!addressList.contains(rc.getProviderAddress())){
     				addressList.add(rc.getProviderAddress());
     			}
@@ -77,7 +77,7 @@ public class RegisterHandler extends SimpleChannelInboundHandler<String> {
     public void doPublisher(JSONObject json){   
     	RegisterProtocol registerProtocol = new RegisterProtocol(json);
     	
-    	RegisterInterfaceDo registerInterface = new RegisterInterfaceDo();
+    	ConfigDo registerInterface = new ConfigDo();
     	registerInterface.setAppName("unname");
     	registerInterface.setCreator("system");
     	registerInterface.setGmtCreate(new Date());

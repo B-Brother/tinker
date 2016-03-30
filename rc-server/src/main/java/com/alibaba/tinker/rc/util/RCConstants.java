@@ -16,4 +16,13 @@ public class RCConstants {
     public static final String DATA_ID = "dataId";
 
     public static final String DATA_VALUE = "dataValue";
+
+
+
+    public static final String MIDDLEWARE_TINKER = "Tinker";
+
+
+
+    // 2:数据注册目前的状态是正常
+    public static final int STATUS_NORMAL = 2;
 }

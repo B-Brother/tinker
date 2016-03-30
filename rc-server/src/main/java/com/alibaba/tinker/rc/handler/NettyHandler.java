@@ -1,6 +1,6 @@
 package com.alibaba.tinker.rc.handler;
 
-import com.alibaba.tinker.rc.container.RequestContext;
+import com.alibaba.tinker.rc.client.RequestContext;
 
 /**
  * Created by yingchao.zyc on 2016/3/25.

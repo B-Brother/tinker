@@ -1,6 +1,6 @@
-package com.alibaba.tinker.rc.container;
+package com.alibaba.tinker.rc.client;
 
-import com.alibaba.tinker.rc.handler.RequestDispatchHandler;
+import com.alibaba.fastjson.JSONObject;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -11,29 +11,19 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
+import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 
 /**
- * Created by yingchao.zyc on 2016/3/25.
+ *
+ * 客户端服务器。用来向rc发送数据
  */
-public class NettyServerBootstrap {
+public class ClientServer {
 
-    private Logger logger = LoggerFactory.getLogger(NettyServerBootstrap.class);
+    private Channel channel;
 
-    private final int port = 8848;
-
-    @Resource
-    private RequestDispatchHandler requestDispatchHandler;
-
-    /**
-     * 初始化Netty的对外监听服务。
-     */
-    public NettyServerBootstrap(){
-        logger.info("rc server start.");
-
+    public ClientServer(){
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -47,28 +37,36 @@ public class NettyServerBootstrap {
                         public void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline p = ch.pipeline();
 
-                            //p.addLast(new LoggingHandler(LogLevel.INFO));
                             p.addLast(
                                     new ObjectEncoder(),
                                     new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
-                                    requestDispatchHandler);
+                                    new ClientHandler());
                         }
                     });
 
             // Start the server.
-            ChannelFuture f = b.bind(port).sync();
+            ChannelFuture f = b.bind(InetAddress.getByName(HostUtil.RC_HOST), HostUtil.RC_PORT).sync();
 
-            System.out.println("rc is running...");
-
-            // Wait until the server socket is closed.
-            f.channel().closeFuture().sync();
+            channel = f.channel();
         } catch(Exception e) {
             // TODO 这里的异常处理方式不太恰当
             throw new RuntimeException(e);
-        } finally {
-            // Shut down all event loops to terminate all threads.
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
         }
+    }
+
+    /**
+     * 发送内容到配置中心
+     *
+     * @param context
+     */
+    public RCResponse send(RequestContext context){
+
+        byte[] data = null;
+        try {
+            data = JSONObject.toJSONString(context).getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // DO WHAT ?  TODO
+        }
+        channel.writeAndFlush(data);
     }
 }

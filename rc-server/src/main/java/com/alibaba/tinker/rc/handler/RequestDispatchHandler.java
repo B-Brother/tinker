@@ -2,16 +2,14 @@ package com.alibaba.tinker.rc.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.tinker.rc.container.NettyHandlerFactory;
-import com.alibaba.tinker.rc.container.RequestContext;
+import com.alibaba.tinker.rc.client.RequestContext;
 import com.alibaba.tinker.rc.ex.BlankParameterException;
 import com.alibaba.tinker.rc.util.RCConstants;
-import com.alibaba.tinker.register.mapper.RegisterInterfaceMapper;
-import com.alibaba.tinker.register.object.RegisterInterfaceDo;
-import com.alibaba.tinker.register.protocol.RegisterProtocol;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.Base64;
 import java.util.Map;
 
@@ -19,6 +17,9 @@ import java.util.Map;
  * 负责处理各个客户端过来的请求
  */
 public class RequestDispatchHandler extends SimpleChannelInboundHandler<String> {
+
+    @Resource
+    private NettyHandlerFactory nettyHandlerFactory;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
@@ -34,18 +35,15 @@ public class RequestDispatchHandler extends SimpleChannelInboundHandler<String> 
                 parse(new String(originByte, "UTF-8"));
 
         // 分派到不同的handler
-        String type = dataMap.get(RCConstants.DATA_TYPE);
-        if (type == null){
-            return;
-        }
+        RequestContext context = fillContext(dataMap);
+        context.setChannel(ctx.channel());
 
-        NettyHandlerFactory factory = NettyHandlerFactory.getInstance();
-        NettyHandler handler = factory.getHandler(type);
+        NettyHandler handler = nettyHandlerFactory.getHandler(context.getType());
         if (handler == null){
             return;
         }
 
-        RequestContext context = fillContext(dataMap);
+
         handler.handler(context);
     }
 
@@ -81,6 +79,7 @@ public class RequestDispatchHandler extends SimpleChannelInboundHandler<String> 
         context.setClientIp(clientIp);
         context.setDataGroup(group);
         context.setDataId(dataId);
+        context.setType(type);
         return context;
     }
 }

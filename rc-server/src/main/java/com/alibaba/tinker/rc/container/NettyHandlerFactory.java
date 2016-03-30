@@ -5,6 +5,7 @@ import com.alibaba.tinker.rc.handler.NettyHandler;
 import com.alibaba.tinker.rc.handler.PublishHandler;
 import com.alibaba.tinker.rc.util.NettyHandlerConstants;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,21 +14,17 @@ import java.util.Map;
  */
 public class NettyHandlerFactory {
 
-    private static NettyHandlerFactory instance = null;
+    @Resource
+    private ConsumeHandler consumeHandler;
+
+    @Resource
+    private PublishHandler publishHandler;
 
     private Map<String, NettyHandler> handlerMap = new HashMap<>();
 
     private NettyHandlerFactory(){
-        handlerMap.put(NettyHandlerConstants.HANDLER_CONSUMER, new ConsumeHandler());
-        handlerMap.put(NettyHandlerConstants.HANDLER_PUBLISH, new PublishHandler());
-    }
-
-    public static NettyHandlerFactory getInstance(){
-        if(instance == null){
-            instance = new NettyHandlerFactory();
-        }
-
-        return instance;
+        handlerMap.put(NettyHandlerConstants.HANDLER_CONSUMER, consumeHandler);
+        handlerMap.put(NettyHandlerConstants.HANDLER_PUBLISH, publishHandler);
     }
 
     public NettyHandler getHandler(String type){

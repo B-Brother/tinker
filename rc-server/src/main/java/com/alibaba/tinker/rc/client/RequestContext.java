@@ -1,4 +1,9 @@
-package com.alibaba.tinker.rc.container;
+package com.alibaba.tinker.rc.client;
+
+import io.netty.channel.Channel;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 上下文对象。
@@ -11,6 +16,9 @@ public class RequestContext {
     // 客户端IP
     private String clientIp;
 
+    // 发布类型
+    private String type;
+
     // 数据分组
     private String dataGroup;
 
@@ -19,6 +27,12 @@ public class RequestContext {
 
     // 数据值
     private String dataValue;
+
+    // 额外属性
+    private Map<String, String> attributeMap = new HashMap<>();
+
+    // 保持当前的netty连接channel
+    private Channel channel;
 
     public String getAppName() {
         return appName;
@@ -34,6 +48,14 @@ public class RequestContext {
 
     public void setClientIp(String clientIp) {
         this.clientIp = clientIp;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getDataGroup() {
@@ -58,5 +80,21 @@ public class RequestContext {
 
     public void setDataValue(String dataValue) {
         this.dataValue = dataValue;
+    }
+
+    public Map<String, String> getAttributeMap() {
+        return attributeMap;
+    }
+
+    public void setAttributeMap(Map<String, String> attributeMap) {
+        this.attributeMap = attributeMap;
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
     }
 }
